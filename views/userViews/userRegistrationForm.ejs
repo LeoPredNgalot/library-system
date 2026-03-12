@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Registration</title>
+    <link rel="stylesheet" href="/styles/usersStyles/userRegistration.css" />
+  </head>
+  <body>
+    <h2>User Registration</h2>
+
+    
+    <form enctype="multipart/form-data" id="form">
+      <div>
+        <label for="studentId">Student ID</label><br />
+        <input
+          type="text"
+          id="studentId"
+          name="studentId"
+          required />
+      </div>
+
+      <br />
+
+      <div>
+        <label for="studentFirstName">First Name</label><br />
+        <input
+          type="text"
+          id="studentFirstName"
+          name="studentFirstName"
+          required />
+      </div>
+
+        <!-- Student ID -->
+        <div class="field-group">
+          <label class="field-label" for="studentId">Student ID<span class="required-star">*</span></label>
+          <div class="field-wrapper relative">
+            <span class="field-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+              </svg>
+            </span>
+            <input type="text" id="studentId" name="studentId" required placeholder="e.g. 1234567" class="input-field" />
+          </div>
+          <p id="err-studentId" style="color:#f87171;font-size:11px;margin-top:4px;display:none;"></p>
+        </div>
+
+        <!-- Name row -->
+        <div class="field-group grid grid-cols-2 gap-3">
+          <div>
+            <label class="field-label" for="studentFirstName">First Name<span class="required-star">*</span></label>
+            <div class="field-wrapper relative">
+              <span class="field-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <input type="text" id="studentFirstName" name="studentFirstName" required placeholder="Juan" class="input-field" />
+            </div>
+            <p id="err-studentFirstName" style="color:#f87171;font-size:11px;margin-top:4px;display:none;"></p>
+          </div>
+          <div>
+            <label class="field-label" for="studentLastName">Last Name<span class="required-star">*</span></label>
+            <div class="field-wrapper relative">
+              <span class="field-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <input type="text" id="studentLastName" name="studentLastName" required placeholder="Dela Cruz" class="input-field" />
+            </div>
+            <p id="err-studentLastName" style="color:#f87171;font-size:11px;margin-top:4px;display:none;"></p>
+          </div>
+        </div>
+
+        <!-- Grade & Section -->
+        <div class="field-group grid grid-cols-2 gap-3">
+          <div>
+            <label class="field-label" for="studentGrade">Grade<span class="required-star">*</span></label>
+            <div class="field-wrapper relative">
+              <span class="field-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                </svg>
+              </span>
+              <select id="studentGrade" name="studentGrade" required class="input-field">
+                <option value="">Select</option>
+                <option value="11">Grade 11</option>
+                <option value="12">Grade 12</option>
+              </select>
+              <span class="chevron">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </div>
+            <p id="err-studentGrade" style="color:#f87171;font-size:11px;margin-top:4px;display:none;"></p>
+          </div>
+          <div>
+            <label class="field-label" for="studentSection">Section<span class="required-star">*</span></label>
+            <div class="field-wrapper relative">
+              <span class="field-icon">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                </svg>
+              </span>
+              <select id="studentSection" name="studentSection" required class="input-field">
+                <option value="">Select</option>
+              </select>
+              <span class="chevron">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </div>
+            <p id="err-studentSection" style="color:#f87171;font-size:11px;margin-top:4px;display:none;"></p>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="field-group">
+          <label class="field-label" for="studentEmail">Email Address<span class="required-star">*</span></label>
+          <div class="field-wrapper relative">
+            <span class="field-icon">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </span>
+            <input type="email" id="studentEmail" name="studentEmail" required placeholder="juan@school.edu.ph" class="input-field" />
+          </div>
+          <p id="err-studentEmail" style="color:#f87171;font-size:11px;margin-top:4px;display:none;"></p>
+        </div>
+
+      <br />
+
+      <div>
+        <label for="studentSection">Section</label><br />
+        <select id="studentSection" name="studentSection" required>
+          <option value="">-- Select Section --</option>
+        </select>
+      </div>
+
+      <br />
+
+      <div>
+        <label for="studentEmail">Email</label><br />
+        <input type="email" id="studentEmail" name="studentEmail" required />
+      </div>
+
+      <br />
+
+      <div>
+        <label for="studentContactNumber">Contact Number</label><br />
+        <input
+          type="tel"
+          id="studentContactNumber"
+          name="studentContactNumber" />
+      </div>
+
+      <br />
+
+      <button type="submit" id="registerBtn">Register</button>
+      <button type="button" id="cancelBtn">Cancel</button>
+    </form>
+
+    <script src="/usersScripts/userRegistration.js"></script>
+  </body>
+</html>

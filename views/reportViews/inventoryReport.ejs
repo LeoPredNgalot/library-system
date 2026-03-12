@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Report — Voctech Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+      document.documentElement.classList.add('embedded');
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:       #07111d;
+      --bg-main:       #080f1a;
+      --bg-card:       #0d1e30;
+      --bg-input:      #091522;
+      --bg-row-hover:  rgba(34,211,238,0.03);
+      --border:        rgba(255,255,255,0.06);
+      --border-light:  rgba(255,255,255,0.09);
+      --accent:        #22d3ee;
+      --accent-dim:    rgba(34,211,238,0.12);
+      --accent-glow:   rgba(34,211,238,0.18);
+      --text-primary:  #ddeeff;
+      --text-secondary:#7a9bb8;
+      --text-muted:    #3d5a73;
+      --topbar-h:      58px;
+      --radius:        12px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      overflow: auto;
+    }
+
+    .main {
+      margin-left: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      height: var(--topbar-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-main);
+      flex-shrink: 0;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-left { display: flex; flex-direction: column; }
+    .topbar-eyebrow { font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.07em; text-transform: uppercase; }
+    .topbar-title { font-size: 17px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+
+    .page-body {
+      flex: 1;
+      overflow-y: visible;
+      padding: 24px 28px;
+      background: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── SUMMARY CARDS ── */
+    .summary-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    @media (max-width: 1200px) { .summary-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .stat-card:nth-child(5) { animation-delay: 0.25s; }
+    .stat-card:nth-child(6) { animation-delay: 0.3s; }
+
+    .stat-label { font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .stat-value { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+    .stat-value.accent  { color: var(--accent); }
+    .stat-value.green   { color: #34d399; }
+    .stat-value.yellow  { color: #fbbf24; }
+    .stat-value.red     { color: #f87171; }
+    .stat-value.orange  { color: #fb923c; }
+
+    /* ── TABLE CARD (contains filter + table + pagination) ── */
+    .table-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      animation: fadeUp 0.4s ease 0.25s both;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── FILTER BAR — lives inside .table-card ── */
+    .table-filter {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .filter-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+    .filter-search { position: relative; flex: 1; min-width: 220px; }
+    .filter-search svg {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); pointer-events: none;
+    }
+    .filter-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px 7px 32px;
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .filter-input::placeholder { color: var(--text-muted); }
+    .filter-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    .select-wrap { position: relative; }
+    .select-wrap svg { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted); }
+    .filter-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 28px 7px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      min-width: 150px;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+
+    .btn-apply {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      background: linear-gradient(135deg,#0e7490,#22d3ee);
+      border: none; color: white; font-size: 13px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif; cursor: pointer;
+      transition: opacity 0.15s, transform 0.12s;
+      box-shadow: 0 2px 12px rgba(34,211,238,0.2);
+    }
+    .btn-apply:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-clear {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 12px; border-radius: 8px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      color: var(--text-secondary); font-size: 13px; font-weight: 500;
+      font-family: 'DM Sans', sans-serif; cursor: pointer; text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-clear:hover { border-color: var(--border-light); color: var(--text-primary); }
+
+    .filter-badge { font-size: 11.5px; color: var(--text-muted); }
+    .filter-badge strong { color: var(--accent); }
+
+    /* ── TABLE ── */
+    .table-scroll { overflow-x: auto; }
+    .table-scroll::-webkit-scrollbar { height: 4px; }
+    .table-scroll::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+    table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+    thead th {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-muted);
+      padding: 12px 14px; text-align: left;
+      border-bottom: 1px solid var(--border); white-space: nowrap;
+      background: var(--bg-card);
+    }
+    tbody td {
+      padding: 11px 14px; font-size: 13px;
+      color: var(--text-secondary); border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--bg-row-hover); }
+    tbody tr { transition: background 0.12s; }
+
+    .no-data td { text-align: center; padding: 48px; color: var(--text-muted); font-size: 13px; }
+    .cell-title { font-weight: 600; color: var(--text-primary); font-size: 13px; }
+    .cell-mono  { font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--text-muted); }
+    .cell-id    { font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--text-muted); }
+
+    .count-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 26px; height: 20px; padding: 0 6px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .badge-total    { background: rgba(122,155,184,0.12); color: var(--text-secondary); }
+    .badge-avail    { background: rgba(52,211,153,0.12);  color: #34d399; }
+    .badge-borrowed { background: rgba(251,191,36,0.12);  color: #fbbf24; }
+    .badge-lost     { background: rgba(248,113,113,0.12); color: #f87171; }
+    .badge-damaged  { background: rgba(251,146,60,0.12);  color: #fb923c; }
+    .badge-zero     { background: rgba(61,90,115,0.12);   color: var(--text-muted); }
+
+    .action-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600;
+      color: var(--accent); border: 1px solid rgba(34,211,238,0.25);
+      text-decoration: none; transition: all 0.15s; background: transparent;
+    }
+    .action-link:hover { background: var(--accent-dim); }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 10px;
+    }
+    .page-info { font-size: 12px; color: var(--text-muted); }
+    .page-info span { color: var(--text-secondary); font-weight: 600; }
+    .pg-btns { display: flex; align-items: center; gap: 6px; }
+    .pg-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: 7px; font-size: 12.5px; font-weight: 500;
+      color: var(--text-secondary); background: var(--bg-input);
+      border: 1px solid var(--border); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; text-decoration: none;
+      transition: all 0.15s;
+    }
+    .pg-btn:hover { border-color: var(--border-light); color: var(--text-primary); }
+    .pg-btn.disabled { opacity: 0.35; pointer-events: none; cursor: not-allowed; }
+
+    .page-body-end { height: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-eyebrow">Voctech Library · Reports</span>
+      <span class="topbar-title">Inventory Report</span>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- ── Summary Cards ── -->
+    <div class="summary-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total books</div>
+        <div class="stat-value accent"><%= summary.total_titles %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Copies</div>
+        <div class="stat-value"><%= summary.total_copies %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Available</div>
+        <div class="stat-value green"><%= summary.total_available %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Borrowed</div>
+        <div class="stat-value yellow"><%= summary.total_borrowed %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Lost</div>
+        <div class="stat-value red"><%= summary.total_lost %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Damaged</div>
+        <div class="stat-value orange"><%= summary.total_damaged %></div>
+      </div>
+    </div>
+
+    <!-- ── Table Card (filter + table + pagination combined) ── -->
+    <div class="table-card">
+
+      <!-- Filter bar — sits at the top of the card, above the table -->
+      <div class="table-filter">
+        <form class="filter-form" method="GET" action="/reports/inventory?embed=true">
+          <div class="filter-search">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+            <input type="text" name="search" class="filter-input"
+              placeholder="Search by title, author, or ISBN…"
+              value="<%= filters.search %>"
+              autocomplete="off" />
+          </div>
+          <div class="select-wrap">
+            <select name="genre" class="filter-select">
+              <option value="">All Genres</option>
+              <% genres.forEach(item => { %>
+                <option value="<%= item %>" <%= filters.genre === item ? 'selected' : '' %>><%= item %></option>
+              <% }) %>
+            </select>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <button type="submit" class="btn-apply">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+            Apply
+          </button>
+          <a href="/reports/inventory?embed=true" class="btn-clear">Clear</a>
+        </form>
+        <% if (filters.search || filters.genre) { %>
+          <p class="filter-badge">
+            Filtering by:
+            <% if (filters.search) { %><strong><%= filters.search %></strong><% } %>
+            <% if (filters.search && filters.genre) { %> · <% } %>
+            <% if (filters.genre) { %><strong><%= filters.genre %></strong><% } %>
+          </p>
+        <% } %>
+      </div>
+
+      <!-- Table -->
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Genre</th>
+              <th>Year</th>
+              <th>Total</th>
+              <th>Available</th>
+              <th>Borrowed</th>
+              <th>Lost</th>
+              <th>Damaged</th>
+              <th>Location</th>
+              <th>Publisher</th>
+              <th>ISBN</th>
+              <th>Date Added</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (books.length === 0) { %>
+              <tr class="no-data"><td colspan="15">No books found.</td></tr>
+            <% } %>
+            <% books.forEach(book => { %>
+              <tr>
+                <td><span class="cell-id"><%= book.id %></span></td>
+                <td><span class="cell-title"><%= book.title %></span></td>
+                <td><%= book.author %></td>
+                <td><%= book.genre || '—' %></td>
+                <td><%= book.year_published || '—' %></td>
+                <td><span class="count-badge badge-total"><%= book.total_copies %></span></td>
+                <td><span class="count-badge <%= book.available_count > 0 ? 'badge-avail' : 'badge-zero' %>"><%= book.available_count %></span></td>
+                <td><span class="count-badge <%= book.borrowed_count > 0 ? 'badge-borrowed' : 'badge-zero' %>"><%= book.borrowed_count %></span></td>
+                <td><span class="count-badge <%= book.lost_count > 0 ? 'badge-lost' : 'badge-zero' %>"><%= book.lost_count %></span></td>
+                <td><span class="count-badge <%= book.damaged_count > 0 ? 'badge-damaged' : 'badge-zero' %>"><%= book.damaged_count %></span></td>
+                <td><%= book.book_location || '—' %></td>
+                <td><%= book.publisher || '—' %></td>
+                <td><span class="cell-mono"><%= book.isbn || '—' %></span></td>
+                <td><span class="cell-mono"><%= book.date_added %></span></td>
+                <td>
+                  <a class="action-link" href="/book/get/viewBook/<%= book.id %>">
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    View
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <p class="page-info">
+          Page <span><%= pagination.page %></span> of <span><%= pagination.totalPages %></span>
+          &nbsp;·&nbsp; <span><%= pagination.totalBooks %></span> books total
+        </p>
+        <div class="pg-btns">
+          <% if (pagination.hasPrev) { %>
+            <a class="pg-btn" href="/reports/inventory?page=<%= pagination.prevPage %>&search=<%= encodeURIComponent(filters.search) %>&genre=<%= encodeURIComponent(filters.genre) %>&embed=true">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev
+            </a>
+          <% } else { %>
+            <span class="pg-btn disabled">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev
+            </span>
+          <% } %>
+          <% if (pagination.hasNext) { %>
+            <a class="pg-btn" href="/reports/inventory?page=<%= pagination.nextPage %>&search=<%= encodeURIComponent(filters.search) %>&genre=<%= encodeURIComponent(filters.genre) %>&embed=true">
+              Next <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          <% } else { %>
+            <span class="pg-btn disabled">
+              Next <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </span>
+          <% } %>
+        </div>
+      </div>
+
+    </div><!-- end table-card -->
+
+    <div class="page-body-end"></div>
+  </div>
+</div>
+
+</body>
+</html>

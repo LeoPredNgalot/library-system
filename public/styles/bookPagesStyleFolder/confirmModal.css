@@ -1,0 +1,37 @@
+/* Modal backdrop */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Hide modal */
+.modal.hidden {
+  display: none;
+}
+
+/* Modal box */
+.modal-content {
+  background: #ffffff;
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+  width: 300px;
+}
+
+/* Buttons container */
+.modal-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* Buttons */
+.modal-actions button {
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}

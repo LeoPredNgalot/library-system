@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add New Book — Voctech Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+   <link rel="stylesheet" href="/styles/bookPagesStyleFolder/addBookForm.css" />
+ 
+</head>
+<body>
+
+
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-eyebrow">Books</span>
+      <span class="topbar-title">Add New Book</span>
+    </div>
+    <a href="/book/get-all-books?embed=true" class="back-btn">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Books
+    </a>
+  </div>
+
+  <div class="page-body">
+    <form id="form" method="post" enctype="multipart/form-data">
+      <div class="form-layout">
+
+        <!-- LEFT -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <div><div class="card-title">Book Cover</div><div class="card-sub">Optional photo</div></div>
+            </div>
+            <div class="card-body">
+              <div class="cover-preview" id="coverPreview">
+                <img id="coverImg" src="" alt="" />
+                <div class="cover-hint">
+                  <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#3d5a73" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>Click to upload</span><small>PNG, JPG, JPEG</small>
+                </div>
+                <input type="file" name="bookPhoto" id="bookPhoto" accept=".png,.jpg,.jpeg" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg></div>
+              <div><div class="card-title">Book Copy IDs</div><div class="card-sub">Physical copy identifiers</div></div>
+            </div>
+            <div class="card-body">
+              <div class="copies-header">
+                <span class="copies-title">Copy IDs</span>
+                <span class="copy-count">Total: <strong id="bookCount">0</strong></span>
+              </div>
+              <div class="copies-list-area" id="bookIdSectionScrollArea"></div>
+              <button type="button" class="add-copy-btn" id="addBookIdBtn">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Copy ID
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="card" style="animation-delay:0.08s">
+          <div class="card-head">
+            <div class="card-icon"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+            <div><div class="card-title">Book Information</div><div class="card-sub">Fill in the book details below</div></div>
+          </div>
+          <div class="card-body">
+
+            <div class="field">
+              <label for="bookTitle">Book Title <span class="req">*</span></label>
+              <input type="text" id="bookTitle" name="bookTitle" placeholder="Enter book title" minlength="4" maxlength="50" required />
+              <div class="field-error" id="errTitle"></div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="bookAuthor">Author <span class="req">*</span></label>
+                <input type="text" id="bookAuthor" name="bookAuthor" placeholder="Author name" required minlength="4" maxlength="50" />
+              </div>
+              <div class="field">
+                <label for="bookIsbn">ISBN</label>
+                <input type="text" id="bookIsbn" name="bookIsbn" placeholder="e.g. 978-3-16-148410-0" maxlength="50" />
+                <div class="field-error" id="errIsbn"></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="bookPublisher">Publisher</label>
+                <input type="text" id="bookPublisher" name="bookPublisher" placeholder="Publisher name" maxlength="50" />
+              </div>
+              <div class="field">
+                <label for="bookYearPublished">Year Published</label>
+                <input type="number" id="bookYearPublished" name="bookYearPublished" placeholder="e.g. 2023" min="1900" max="2100" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="bookLocation">Shelf Location</label>
+              <input type="text" id="bookLocation" name="bookLocation" placeholder="e.g. Shelf A-3" maxlength="50" />
+            </div>
+
+            <div class="field">
+              <label for="bookGenre">Genre</label>
+              <div class="select-wrap">
+                <select id="bookGenre" name="bookGenre">
+                  <option value="">Select genre</option>
+                  <option value="MATH">Math</option>
+                  <option value="SCIENCE">Science</option>
+                  <option value="ENGLISH">English</option>
+                  <option value="FICTION">Fiction</option>
+                  <option value="FILIPINO">Filipino</option>
+                  <option value="HISTORY">History</option>
+                  <option value="LITERATURE">Literature</option>
+                </select>
+                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+              <button type="submit" class="btn-submit" id="registerBtn">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                + Add Book
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-icon"><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+      <div><div class="modal-head-title" id="modalTitle"></div><div class="modal-head-sub" id="modalMessage"></div></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modalCancelBtn">Cancel</button>
+      <button class="btn-confirm" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+  // ── Sidebar ──
+  function toggleTrans(btn) {
+    const sub = document.getElementById('transSubmenu');
+    btn.classList.toggle('open', sub.classList.toggle('open'));
+  }
+  function toggleProfile() {
+    const panel = document.getElementById('profilePanel');
+    const chevron = document.getElementById('profileChevron');
+    const isOpen = panel.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#profileWrap')) {
+      document.getElementById('profilePanel').classList.remove('open');
+      document.getElementById('profileChevron').style.transform = '';
+    }
+  });
+
+  // ── Cover preview ──
+  document.getElementById('bookPhoto').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('coverImg').src = e.target.result;
+      document.getElementById('coverPreview').classList.add('has-img');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ── Toast ──
+  function showToast(message, type = 'success') {
+    const colors = {
+      success: { bg:'rgba(34,211,238,0.12)',  border:'rgba(34,211,238,0.3)',  icon:'#22d3ee' },
+      error:   { bg:'rgba(248,113,113,0.12)', border:'rgba(248,113,113,0.3)', icon:'#f87171' },
+      warning: { bg:'rgba(251,191,36,0.12)',  border:'rgba(251,191,36,0.3)',  icon:'#fbbf24' },
+    };
+    const icons = {
+      success: '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
+      error:   '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      warning: '<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01"/></svg>',
+    };
+    const c = colors[type] || colors.success;
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.style.cssText = `display:flex;align-items:flex-start;gap:10px;background:#0d1e30;border:1px solid ${c.border};border-radius:10px;padding:12px 14px;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-size:13px;color:#ddeeff;min-width:280px;max-width:380px;pointer-events:all;animation:toastIn 0.25s cubic-bezier(0.22,1,0.36,1) both;`;
+    toast.innerHTML = `<div style="width:28px;height:28px;border-radius:7px;background:${c.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:${c.icon};">${icons[type]||icons.success}</div><div style="flex:1;padding-top:2px;line-height:1.5;">${message}</div><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:#3d5a73;padding:2px;"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'toastOut 0.2s ease forwards'; setTimeout(() => toast.remove(), 200); }, 4000);
+  }
+
+  // ── Copy IDs ──
+  const scrollArea = document.getElementById('bookIdSectionScrollArea');
+  const bookCountEl = document.getElementById('bookCount');
+  function updateCount() { bookCountEl.textContent = scrollArea.querySelectorAll('input[name="bookCopyIds[]"]').length; }
+  function createCopyRow() {
+    const row = document.createElement('div');
+    row.className = 'copy-row';
+    const input = document.createElement('input');
+    input.type = 'text'; input.name = 'bookCopyIds[]'; input.required = true;
+    input.placeholder = 'Copy ID (min. 4 characters)';
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button'; removeBtn.className = 'remove-copy-btn';
+    removeBtn.innerHTML = '<svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    removeBtn.addEventListener('click', () => { row.remove(); updateCount(); });
+    row.appendChild(input); row.appendChild(removeBtn);
+    scrollArea.appendChild(row);
+    updateCount(); input.focus();
+  }
+  document.getElementById('addBookIdBtn').addEventListener('click', createCopyRow);
+  document.getElementById('cancelBtn').addEventListener('click', () => window.location.href = '/book/get-all-books?embed=true');
+
+  // ── Confirm Modal ──
+  const modal = document.getElementById('modal');
+  const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+  const modalCancelBtn  = document.getElementById('modalCancelBtn');
+  function openConfirmModal({ title, message, onConfirm }) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMessage').textContent = message;
+    modal.classList.remove('hidden');
+    modalConfirmBtn.onclick = null;
+    modalConfirmBtn.onclick = async () => {
+      modalConfirmBtn.disabled = true;
+      try { await onConfirm(); }
+      finally { modalConfirmBtn.disabled = false; modal.classList.add('hidden'); }
+    };
+  }
+  modalCancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
+
+  // ── Form Submit ──
+  document.getElementById('form').addEventListener('submit', e => {
+    e.preventDefault();
+    // clear old errors
+    document.getElementById('errTitle').classList.remove('visible');
+    document.getElementById('errIsbn').classList.remove('visible');
+
+    // client-side ISBN check — must be numeric only if provided
+    const isbnVal = document.getElementById("bookIsbn").value.trim();
+    if (isbnVal && !/^\d+$/.test(isbnVal)) {
+      document.getElementById("errIsbn").textContent = "ISBN must contain numbers only.";
+      document.getElementById("errIsbn").classList.add("visible");
+      document.getElementById("bookIsbn").focus();
+      return;
+    }
+
+
+    openConfirmModal({
+      title: 'Confirm Book Addition',
+      message: 'Are you sure you want to add this book?',
+      onConfirm: async () => {
+        const registerBtn = document.getElementById('registerBtn');
+        registerBtn.disabled = true;
+        registerBtn.textContent = 'Adding...';
+        try {
+          const res  = await fetch('/book/add', { method: 'POST', body: new FormData(document.getElementById('form')) });
+          let data;
+          try { data = await res.json(); } catch(_) { data = { success: false, message: `Server error ${res.status}: ${res.statusText}` }; }
+          if (data.success) {
+            showToast('Book added successfully!', 'success');
+            setTimeout(() => window.location.href = '/book/get-all-books?embed=true', 1200);
+          } else if (data.error) {
+            // duplicate title/isbn from service layer
+            if (data.error.titleExist) {
+              document.getElementById('errTitle').textContent = 'Book title already exists.';
+              document.getElementById('errTitle').classList.add('visible');
+            }
+            if (data.error.isbnExist) {
+              document.getElementById('errIsbn').textContent = 'ISBN already exists.';
+              document.getElementById('errIsbn').classList.add('visible');
+            }
+            if (!data.error.titleExist && !data.error.isbnExist) {
+              showToast(data.message || 'Failed to add book.', 'error');
+            }
+            registerBtn.disabled = false;
+            registerBtn.textContent = '+ Add Book';
+          } else if (data.message && typeof data.message === 'object') {
+            // Zod validation error — map known fields to inline errors, rest to toast
+            const zod = data.message;
+            const titleErrs = zod?.bookTitle?._errors || [];
+            const isbnErrs  = zod?.bookIsbn?._errors  || [];
+            if (titleErrs.length) {
+              document.getElementById('errTitle').textContent = titleErrs[0];
+              document.getElementById('errTitle').classList.add('visible');
+            }
+            if (isbnErrs.length) {
+              document.getElementById('errIsbn').textContent = isbnErrs[0];
+              document.getElementById('errIsbn').classList.add('visible');
+            }
+            // any other field errors → single toast
+            const otherErrs = Object.entries(zod)
+              .filter(([k]) => !['_errors','bookTitle','bookIsbn'].includes(k))
+              .flatMap(([, v]) => v?._errors || []);
+            if (!titleErrs.length && !isbnErrs.length && otherErrs.length) {
+              showToast(otherErrs[0], 'error');
+            }
+            registerBtn.disabled = false;
+            registerBtn.textContent = '+ Add Book';
+          } else {
+            showToast(typeof data.message === 'string' ? data.message : 'Failed to add book.', 'error');
+            registerBtn.disabled = false;
+            registerBtn.textContent = '+ Add Book';
+          }
+        } catch(err) {
+          showToast('Network error: ' + err.message, 'error');
+          registerBtn.disabled = false;
+          registerBtn.textContent = '+ Add Book';
+        }
+      }
+    });
+  });
+</script>
+<!-- NOTE: book.js is no longer needed on this page — all logic is handled inline above -->
+</body>
+</html>

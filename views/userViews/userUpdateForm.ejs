@@ -1,0 +1,124 @@
+ <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Update</title>
+    <link rel="stylesheet" href="/styles/usersStyles/userUpdate.css" />
+  </head>
+
+  <body>
+    <h2>USER UPDATE</h2>
+ 
+
+      <%
+  const isGrade11 = student.grade == 11;
+  const isGrade12 = student.grade == 12;
+  %>
+    <form enctype="multipart/form-data" id="form"
+     data-student-id="<%= student.student_id %>">
+      <!-- STUDENT ID -->
+      <div>
+        <label for="studentId">Student ID</label><br />
+        <input
+          type="text"
+          id="studentId"
+          name="studentId"
+          value="<%= student.student_id %>"
+          required
+        />
+      </div>
+
+      <br />
+
+      <!-- FIRST NAME -->
+      <div>
+        <label for="studentFirstName">First Name</label><br />
+        <input
+          type="text"
+          id="studentFirstName"
+          name="studentFirstName"
+          value="<%= student.first_name %>"
+          required
+        />
+      </div>
+
+      <br />
+
+      <!-- LAST NAME -->
+      <div>
+        <label for="studentLastName">Last Name</label><br />
+        <input
+          type="text"
+          id="studentLastName"
+          name="studentLastName"
+          value="<%= student.last_name %>"
+          required
+        />
+      </div>
+
+      <br />
+
+      <!-- GRADE -->
+
+
+
+      <div>
+        <label for="studentGrade">Grade</label><br />
+      <select id="studentGrade" name="studentGrade" required>
+  <option value="">-- Select Grade --</option>
+
+  <option value="11" <%= isGrade11 ? "selected" : "" %>>Grade 11</option>
+  <option value="12" <%= isGrade12 ? "selected" : "" %>>Grade 12</option>
+</select>
+
+      </div>
+
+      <br />
+
+      <!-- SECTION -->
+      <div>
+        <label for="studentSection">Section</label><br />
+        <select id="studentSection" name="studentSection" required>
+          <option value="<%= student.section %>" selected>
+            <%= student.section %>
+          </option>
+        </select>
+      </div>
+
+      <br />
+
+      <!-- EMAIL -->
+      <div>
+        <label for="studentEmail">Email</label><br />
+        <input
+          type="email"
+          id="studentEmail"
+          name="studentEmail"
+          value="<%= student.email %>"
+          required
+        />
+      </div>
+
+      <br />
+
+      <!-- CONTACT NUMBER -->
+      <div>
+        <label for="studentContactNumber">Contact Number</label><br />
+        <input
+          type="tel"
+          id="studentContactNumber"
+          name="studentContactNumber"
+          value="<%= student.contact_number %>"
+        />
+      </div>
+
+      <br />
+
+      <!-- ACTION BUTTONS -->
+      <button type="submit" id="updateBtn">Update</button>
+      <button type="button" id="backBtn">Back</button>
+    </form>
+
+    <script src="/usersScripts/userUpdateForm.js"></script>
+  </body>
+</html>
