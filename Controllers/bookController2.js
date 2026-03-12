@@ -1,21 +1,17 @@
 //
-// BOOK CONTROLLER — fixed sendUpdateForm to prevent double sidebar
+// BOOK CONTROLLER
 //
 
 const { addNewBookCopy, addBookCopyId, addBookToDb } = require(
   `../Services/booksServiceFolder/books.service.create`,
 );
-
 const { removeBookCopy, removeCopies, deleteBookFromDb } = require(
   `../Services/booksServiceFolder/book.service.delete`,
 );
-
 const { updateBookService } = require(
   `../Services/booksServiceFolder/book.service.update`,
 );
-
 const { getRecommendedBooks } = require('../Services/booksServiceFolder/books.service.read');
-
 const {
   getAllBooksFromDb,
   searchBooks,
@@ -31,19 +27,15 @@ exports.sendForm = (req, res) => {
 exports.addNewBook = async (req, res) => {
   try {
     const error = {};
-
     const isbnExist = await checkIsbn(req.body);
     if (isbnExist) error.isbnExist = true;
-
     const titleExist = await checkTitle(req.body);
     if (titleExist) error.titleExist = true;
-
     if (Object.keys(error).length > 0) {
       return res.status(400).json({ success: false, error });
     }
-
     try {
-      if (req.file) req.body.bookPhotoFilePath = req.file.filename; // ✅ FIXED
+      if (req.file) req.body.bookPhotoFilePath = req.file.filename;
       const failedCopies = await addBookToDb(req.body);
       res.json({ success: true, message: "NEW BOOK ADDED SUCCESSFULLY", failedCopies });
     } catch (error) {
@@ -67,15 +59,26 @@ exports.sendUpdateForm = async (req, res) => {
 };
 
 exports.evaluateUpdateForm = async (req, res) => {
-  if (req.file) req.body.bookPhotoFilePath = req.file.filename; // ✅ FIXED
+  if (req.file) req.body.bookPhotoFilePath = req.file.filename;
+
+  // ✅ DEBUG — shows exactly what the controller receives
+  console.log("=== evaluateUpdateForm CALLED ===");
+  console.log("req.body keys:", Object.keys(req.body));
+  console.log("req.body.newBookCopies:", req.body.newBookCopies);
 
   try {
-    const result = await updateBookService(req.params.id, req.body);
+    await updateBookService(req.params.id, req.body);
     console.log(`BOOK UPDATED SUCCESSFULLY`);
-    res.json({ success: true, message: "BOOK UPDATED SUCCESSFULLY" });
+    // ✅ explicit 200 status
+    return res.status(200).json({ success: true, message: "BOOK UPDATED SUCCESSFULLY" });
   } catch (error) {
-    console.log(`EVALUATE UPDATE FORM, CATCH ERROR:`, error.message);
-    res.status(400).json({ success: false, message: error.message });
+    console.log(`EVALUATE UPDATE FORM ERROR:`, error.message);
+    // ✅ always 400 + errorCode so frontend shows the right message
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+      errorCode: error.errorCode || "SERVER_ERROR",
+    });
   }
 };
 
@@ -84,9 +87,7 @@ exports.getAllBooks = async (req, res) => {
     const page  = Number(req.query.page) || 1;
     const sort  = req.query.sort || "ASC";
     const genre = req.query.genre || null;
-
     const result = await getAllBooksFromDb({ page, limit: 6, sort, genre });
-
     res.render("bookViews/getAllBooks.ejs", { ...result, query: req.query });
   } catch (error) {
     console.log("GET_ALL_BOOKS ERROR:", error.message);

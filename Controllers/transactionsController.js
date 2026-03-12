@@ -166,6 +166,7 @@ async function sendReservationPage(req, res) {
       page: parseInt(page),
       pageSize: parseInt(pageSize),
     });
+    console.log(JSON.stringify(result.rows[0], null, 2));
 
     res.render(`transactionViews/reservationPage`, {
       reservations: result.rows,

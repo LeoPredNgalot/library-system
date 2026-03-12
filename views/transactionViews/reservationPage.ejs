@@ -138,8 +138,8 @@
               <tr class="no-data-row"><td colspan="8">No reservations found.</td></tr>
             <% } else { %>
               <% reservations.forEach(r => {
-                const resDate = r.reservation_date ? new Date(r.reservation_date).toLocaleDateString('en-CA') : '—';
-                const expDate = r.expiration_date  ? new Date(r.expiration_date).toLocaleDateString('en-CA')  : '—';
+                const resDate = r.reserved_date ? new Date(r.reserved_date).toLocaleDateString('en-CA', { timeZone: 'UTC' }) : '—';
+                const expDate = r.expire_date   ? new Date(r.expire_date).toLocaleDateString('en-CA',   { timeZone: 'UTC' }) : '—';
                 const st = (r.status || 'waiting').toLowerCase();
                 const studentName = r.studentName || r.student_name || '—';
                 const bookTitle   = r.bookTitle   || r.book_title   || '—';

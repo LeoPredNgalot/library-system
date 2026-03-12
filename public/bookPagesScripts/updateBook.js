@@ -1,4 +1,5 @@
-// updateBook.js — fixed
+
+// updateBook.js
 
 // ===============================================
 // ELEMENT DECLARATIONS
@@ -62,6 +63,29 @@ function showToast(message, type = "info", duration = 3500) {
 }
 
 // ===============================================
+// ERROR MESSAGES MAP
+// ===============================================
+const errorMessages = {
+  DUPLICATE_COPY_ID:
+    "That copy ID already exists in another book. Each physical copy must have a unique ID.",
+  COPY_HAS_BORROW_RECORD:
+    "Some copies cannot be removed because they are currently borrowed. " +
+    "Please make sure all borrowed copies have been returned before trying to remove them.",
+  COPY_HAS_RESERVATION:
+    "Some copies cannot be removed because they have an active reservation. " +
+    "Please cancel the reservation first, then try again.",
+  COPY_HAS_LINKED_RECORD:
+    "Some copies cannot be removed because they are still linked to existing records. " +
+    "Please resolve those records first before removing these copies.",
+  INVALID_INPUT:
+    "One or more fields are missing or invalid. Please check all fields and try again.",
+  BOOK_NOT_FOUND:
+    "This book no longer exists in the system. Please go back and refresh.",
+  SERVER_ERROR:
+    "The server encountered an unexpected error. Please try again.",
+};
+
+// ===============================================
 // STATE
 // ===============================================
 const bookCopyActions = {
@@ -75,8 +99,6 @@ const bookCopyActions = {
 // ===============================================
 // BOOK ID — read from the data attribute on the title input
 // ===============================================
-// FIX: was referencing an undefined `bookId` variable everywhere.
-// The book ID is stored as data-book-id on the bookTitle input.
 const bookId = bookTitle ? bookTitle.dataset.bookId : null;
 
 // ===============================================
@@ -182,9 +204,7 @@ function createBookCopyInput() {
 }
 
 // ===============================================
-// EXISTING COPIES — Remove buttons
-// FIX: was calling removeElement(btn) which doesn't exist.
-// Now correctly uses event delegation on the scroll area.
+// EXISTING COPIES — action buttons
 // ===============================================
 if (bookIdSectionScrollArea) {
   bookIdSectionScrollArea.addEventListener("click", (e) => {
@@ -193,7 +213,6 @@ if (bookIdSectionScrollArea) {
     const copyId = btn.dataset.copyId;
     const container = btn.closest(".bookIdContainer");
 
-    // ── Remove ──
     if (btn.classList.contains("updateRemoveBtn")) {
       if (!copyId) { showToast("Missing copy ID.", "error"); return; }
       if (bookCopyActions.toRemove.includes(copyId)) {
@@ -206,7 +225,6 @@ if (bookIdSectionScrollArea) {
       return;
     }
 
-    // ── Mark as Lost ──
     if (btn.classList.contains("markAsLostBtn")) {
       if (!copyId) { showToast("Missing copy ID.", "error"); return; }
       if (bookCopyActions.toMarkAsLost.includes(copyId)) {
@@ -218,7 +236,6 @@ if (bookIdSectionScrollArea) {
       return;
     }
 
-    // ── Mark Found ──
     if (btn.classList.contains("foundBtn")) {
       if (!copyId) { showToast("Missing copy ID.", "error"); return; }
       if (bookCopyActions.toMarkAsFound.includes(copyId)) {
@@ -230,7 +247,6 @@ if (bookIdSectionScrollArea) {
       return;
     }
 
-    // ── Mark as Damaged ──
     if (btn.classList.contains("markAsDamageBtn")) {
       if (!copyId) { showToast("Missing copy ID.", "error"); return; }
       if (bookCopyActions.toMarkAsDamage.includes(copyId)) {
@@ -242,7 +258,6 @@ if (bookIdSectionScrollArea) {
       return;
     }
 
-    // ── Mark as Repaired ──
     if (btn.classList.contains("repairedBtn")) {
       if (!copyId) { showToast("Missing copy ID.", "error"); return; }
       if (bookCopyActions.toMarkAsRepaired.includes(copyId)) {
@@ -276,26 +291,45 @@ async function submitUpdate() {
     return;
   }
 
-  // FIX: bookId was never defined before — now read from data-book-id attribute
   if (!bookId) {
     showToast("Cannot submit: book ID is missing.", "error");
+    return;
+  }
+
+  // ✅ CLIENT-SIDE DUPLICATE CHECK — catches duplicates before hitting the server
+  const existingCopyIds = [...document.querySelectorAll('input[name="bookIds[]"]')]
+    .map(i => i.value.trim().toLowerCase());
+
+  const newCopyInputs = [...document.querySelectorAll('input[name="newBookCopies[]"]')];
+  const newCopyIds = newCopyInputs.map(i => i.value.trim().toLowerCase()).filter(Boolean);
+
+  // Check new copies against existing copies on this book
+  for (const id of newCopyIds) {
+    if (existingCopyIds.includes(id)) {
+      showToast(`Copy ID "${id}" already exists in this book. Please use a unique ID.`, "error");
+      return;
+    }
+  }
+
+  // Check new copies against each other
+  const uniqueNewIds = new Set(newCopyIds);
+  if (uniqueNewIds.size !== newCopyIds.length) {
+    showToast("You have duplicate copy IDs in your new entries. Each copy ID must be unique.", "error");
     return;
   }
 
   const formData = new FormData(form);
   formData.append("bookId", bookId);
 
-  bookCopyActions.toMarkAsFound.forEach(id    => formData.append("listOfCopyToBeMarkAsFound[]",    id));
-  bookCopyActions.toMarkAsRepaired.forEach(id  => formData.append("listOfCopyToBeMarkAsRepaired[]", id));
-  bookCopyActions.toRemove.forEach(id          => formData.append("listOfCopyToRemove[]",           id));
-  bookCopyActions.toMarkAsLost.forEach(id      => formData.append("listOfCopyToBeMarkAsLost[]",     id));
-  bookCopyActions.toMarkAsDamage.forEach(id    => formData.append("listOfCopyToBeMarkAsDamage[]",   id));
+  bookCopyActions.toMarkAsFound.forEach(id   => formData.append("listOfCopyToBeMarkAsFound[]",    id));
+  bookCopyActions.toMarkAsRepaired.forEach(id => formData.append("listOfCopyToBeMarkAsRepaired[]", id));
+  bookCopyActions.toRemove.forEach(id         => formData.append("listOfCopyToRemove[]",           id));
+  bookCopyActions.toMarkAsLost.forEach(id     => formData.append("listOfCopyToBeMarkAsLost[]",     id));
+  bookCopyActions.toMarkAsDamage.forEach(id   => formData.append("listOfCopyToBeMarkAsDamage[]",   id));
 
   updateBookBtn.disabled    = true;
   updateBookBtn.textContent = "Updating...";
 
-  // FIX: the original code had no fetch() call at all — the try/catch had
-  // response handling but response was never declared. Added the fetch here.
   try {
     const response = await fetch(`/book/update/${bookId}`, {
       method: "PATCH",
@@ -305,26 +339,11 @@ async function submitUpdate() {
     let responseContent;
     try { responseContent = await response.json(); } catch { responseContent = {}; }
 
-    if (!response.ok) {
-      const errorMessages = {
-        COPY_HAS_BORROW_RECORD:
-          "Some copies cannot be removed because they are currently borrowed. " +
-          "Please make sure all borrowed copies have been returned before trying to remove them.",
-        COPY_HAS_RESERVATION:
-          "Some copies cannot be removed because they have an active reservation. " +
-          "Please cancel the reservation first, then try again.",
-        COPY_HAS_LINKED_RECORD:
-          "Some copies cannot be removed because they are still linked to existing records. " +
-          "Please resolve those records first before removing these copies.",
-        INVALID_INPUT:
-          "One or more fields are missing or invalid. Please check all fields and try again.",
-        BOOK_NOT_FOUND:
-          "This book no longer exists in the system. Please go back and refresh.",
-        SERVER_ERROR:
-          "The server encountered an unexpected error. Please try again.",
-      };
+    // ✅ check BOTH response.ok AND success field
+    if (!response.ok || responseContent.success === false) {
       const friendlyMessage =
         errorMessages[responseContent?.errorCode] ||
+        responseContent?.message ||
         "The book could not be updated. Please try again or contact support.";
       showToast(friendlyMessage, "error");
       console.error("Update failed:", response.status, responseContent);
@@ -343,8 +362,8 @@ async function submitUpdate() {
       console.error("Fetch error:", err);
     }
   } finally {
-    updateBookBtn.disabled   = false;
-    updateBookBtn.innerHTML  = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save Changes`;
+    updateBookBtn.disabled  = false;
+    updateBookBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save Changes`;
   }
 }
 
