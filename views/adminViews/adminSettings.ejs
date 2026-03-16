@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Settings — Voctech Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+  <link rel="stylesheet" href="/styles/adminPagesStyle/adminsetting.css" />
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
+ 
+</head>
+
+
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    
+    <span class="topbar-title"> Admin Settings</span>
+  </div>
+</div>
+
+<div class="page-body">
+
+  
+
+  <!-- ════════════════════════════════
+       SECTION: RESET LIBRARIAN PASSWORD
+  ════════════════════════════════ -->
+ 
+
+  <div class="card" style="animation-delay:0.08s">
+    <div class="card-header">
+      <div class="card-icon">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+        </svg>
+      </div>
+      <div style="flex:1">
+        <div class="card-title">Reset Admin Password</div>
+        <div class="card-sub">Enter the Admin ID and a new password</div>
+      </div>
+    </div>
+    <div class="form-body">
+      <div class="form-row">
+        <div class="field">
+          <label>Admin ID</label>
+          <input type="number" id="resetLibrarianId" placeholder="e.g. 3" min="1" />
+        </div>
+        <div class="field">
+          <label>New Password</label>
+          <input type="password" id="resetNewPassword" placeholder="Min. 6 characters" />
+          <span class="hint">Must be at least 6 characters.</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" id="clearResetBtn">Clear</button>
+      <button type="button" class="btn btn-accent" id="submitResetBtn">Reset Password</button>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       SECTION: DANGER ZONE
+  ════════════════════════════════ -->
+
+  <div class="card" style="animation-delay:0.1s">
+    <div class="danger-header">
+      <div class="danger-title">Reset Library Data</div>
+      <div class="danger-sub">Permanently delete library records. These actions cannot be undone and will affect all users.</div>
+    </div>
+
+    <div class="danger-note">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#fbbf24" stroke-width="2" style="flex-shrink:0;margin-top:1px">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      Delete in the order shown below (1 → 3) to avoid foreign key conflicts.
+    </div>
+
+    <div class="delete-list">
+
+      <div class="delete-item">
+        <div class="delete-item-left">
+          <div class="delete-order">1</div>
+          <div><div class="delete-label">All reservation records</div></div>
+        </div>
+        <a href="#" class="delete-btn deleteLink" data-action="reservations">Delete</a>
+      </div>
+
+      <div class="delete-item">
+        <div class="delete-item-left">
+          <div class="delete-order">2</div>
+          <div><div class="delete-label">All borrow records</div></div>
+        </div>
+        <a href="#" class="delete-btn deleteLink" data-action="borrows">Delete</a>
+      </div>
+
+      <div class="delete-item">
+        <div class="delete-item-left">
+          <div class="delete-order">3</div>
+          <div><div class="delete-label">All student records</div></div>
+        </div>
+        <a href="#" class="delete-btn deleteLink" data-action="students">Delete</a>
+      </div>
+
+      
+      
+
+    </div>
+  </div>
+
+</div><!-- end page-body -->
+
+
+<!-- ══════════════════════════════
+     MODAL: Danger Zone Password
+════════════════════════════════ -->
+<div class="modal-backdrop" id="passwordModal">
+  <div class="modal">
+    <div class="modal-icon red">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+    </div>
+    <div class="modal-title">Admin Confirmation</div>
+    <div class="modal-sub">You are about to delete: <span id="modalActionLabel">—</span></div>
+    <form id="adminDeleteForm">
+      <input type="hidden" id="deleteAction" />
+      <div class="modal-field">
+        <label>Admin Password</label>
+        <input type="password" id="adminPassword" class="danger" placeholder="Enter your password" autocomplete="off" required />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn cancel" id="cancelDeleteBtn">Cancel</button>
+        <button type="submit" class="modal-btn confirm-red">Confirm Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     MODAL: Reset Password Confirm
+════════════════════════════════ -->
+<div class="modal-backdrop" id="resetConfirmModal">
+  <div class="modal">
+    <div class="modal-icon accent">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+      </svg>
+    </div>
+    <div class="modal-title">Reset Password?</div>
+    <div class="modal-sub">This will reset the password for Admin ID <span id="confirmLibrarianId" style="color:var(--accent);font-weight:600">—</span>. This cannot be undone.</div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn cancel" id="cancelResetBtn">Cancel</button>
+      <button type="button" class="modal-btn confirm-accent" id="proceedResetBtn">Yes, Reset</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+  /* ─────────────────────────────────────────
+     TOAST HELPER
+  ───────────────────────────────────────── */
+  const toast = document.getElementById('toast');
+  function showToast(msg, type = '') {
+    toast.textContent = msg;
+    toast.className = 'toast show ' + type;
+    setTimeout(() => { toast.className = 'toast'; }, 3500);
+  }
+
+  /* ─────────────────────────────────────────
+     MODAL HELPERS
+  ───────────────────────────────────────── */
+  function openModal(id)  { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     RESET LIBRARIAN PASSWORD
+  ───────────────────────────────────────── */
+  document.getElementById('clearResetBtn').addEventListener('click', () => {
+    document.getElementById('resetLibrarianId').value = '';
+    document.getElementById('resetNewPassword').value = '';
+  });
+
+  document.getElementById('submitResetBtn').addEventListener('click', () => {
+    const id  = document.getElementById('resetLibrarianId').value.trim();
+    const pwd = document.getElementById('resetNewPassword').value;
+
+    if (!id) {
+      showToast('Please enter a Librarian ID.', 'error');
+      return;
+    }
+    if (!pwd || pwd.length < 6) {
+      showToast('Password must be at least 6 characters.', 'error');
+      return;
+    }
+
+    document.getElementById('confirmLibrarianId').textContent = id;
+    openModal('resetConfirmModal');
+  });
+
+  document.getElementById('cancelResetBtn').addEventListener('click', () => closeModal('resetConfirmModal'));
+
+  document.getElementById('proceedResetBtn').addEventListener('click', async () => {
+    closeModal('resetConfirmModal');
+    const id  = document.getElementById('resetLibrarianId').value.trim();
+    const pwd = document.getElementById('resetNewPassword').value;
+
+    try {
+      const res  = await fetch(`/librarian/reset-password/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword: pwd }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('resetLibrarianId').value = '';
+        document.getElementById('resetNewPassword').value = '';
+        showToast('Password reset successfully.', 'success');
+      } else {
+        showToast(data.message || 'Failed to reset password.', 'error');
+      }
+    } catch (err) {
+      showToast('Server error. Please try again.', 'error');
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     DANGER ZONE — DELETE MODAL
+  ───────────────────────────────────────── */
+  const actionNames = {
+    reservations:  'all reservation records',
+    borrows:       'all borrow records',
+    students:      'all student records',
+    'book-copies': 'all book copies',
+    books:         'all book records',
+  };
+
+  document.querySelectorAll('.deleteLink').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const action = this.dataset.action;
+      document.getElementById('deleteAction').value           = action;
+      document.getElementById('modalActionLabel').textContent = actionNames[action] || action;
+      document.getElementById('adminPassword').value          = '';
+      openModal('passwordModal');
+    });
+  });
+
+  document.getElementById('cancelDeleteBtn').addEventListener('click', () => closeModal('passwordModal'));
+
+  document.getElementById('adminDeleteForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const action   = document.getElementById('deleteAction').value;
+    const password = document.getElementById('adminPassword').value;
+
+    try {
+      const res  = await fetch('/librarian/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, password }),
+      });
+      const data = await res.json();
+      closeModal('passwordModal');
+      if (data.success) {
+        showToast('Records deleted successfully.', 'success');
+      } else {
+        showToast(data.message || 'Failed to delete records.', 'error');
+      }
+    } catch (err) {
+      closeModal('passwordModal');
+      showToast('Server error. Please try again.', 'error');
+    }
+  });
+</script>
+<script src="/librarianPagesScripts/adminHomePage.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+ <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Library Dashboard</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 24px;
+      }
+
+      .page {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .page-header {
+        margin-bottom: 24px;
+      }
+
+      .page-header h1 {
+        margin: 0 0 8px;
+      }
+
+      .page-header p {
+        margin: 0;
+        color: #555;
+      }
+
+      .section-title {
+        margin: 28px 0 14px;
+        font-size: 20px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 10px;
+        padding: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 15px;
+        color: #444;
+      }
+
+      .card p {
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .table-wrapper {
+        margin-top: 16px;
+        background: white;
+        border-radius: 10px;
+        padding: 18px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1100px;
+      }
+
+      thead {
+        background: #f0f0f0;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+      }
+
+      th {
+        font-weight: bold;
+      }
+
+      tr:hover {
+        background: #fafafa;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .status-borrowed {
+        background: #fff3cd;
+      }
+
+      .status-returned {
+        background: #d1e7dd;
+      }
+
+      .status-lost {
+        background: #f8d7da;
+      }
+
+      .status-damaged {
+        background: #fce5cd;
+      }
+
+      .empty-note {
+        color: #777;
+        padding: 18px 0 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="page-header">
+        <h1>Library Dashboard</h1>
+        <p>Quick overview of your library inventory, borrowing activity, and reservations.</p>
+      </section>
+
+      <h2 class="section-title">Inventory Overview</h2>
+      <section class="cards">
+        <div class="card">
+          <h3>Total Titles</h3>
+          <p><%= inventory.total_titles %></p>
+        </div>
+
+        <div class="card">
+          <h3>Total Copies</h3>
+          <p><%= inventory.total_copies %></p>
+        </div>
+
+        <div class="card">
+          <h3>Available Copies</h3>
+          <p><%= inventory.total_available %></p>
+        </div>
+
+        <div class="card">
+          <h3>Borrowed Copies</h3>
+          <p><%= inventory.total_borrowed %></p>
+        </div>
+
+        <div class="card">
+          <h3>Lost Copies</h3>
+          <p><%= inventory.total_lost %></p>
+        </div>
+
+        <div class="card">
+          <h3>Damaged Copies</h3>
+          <p><%= inventory.total_damaged %></p>
+        </div>
+      </section>
+
+      <h2 class="section-title">Borrowing Activity</h2>
+      <section class="cards">
+        <div class="card">
+          <h3>Borrowed Today</h3>
+          <p><%= borrowActivity.borrowed_today %></p>
+        </div>
+
+        <div class="card">
+          <h3>Returned Today</h3>
+          <p><%= borrowActivity.returned_today %></p>
+        </div>
+
+        <div class="card">
+          <h3>Overdue Books</h3>
+          <p><%= borrowActivity.overdue_books %></p>
+        </div>
+
+        <div class="card">
+          <h3>Unsettled Payments</h3>
+          <p><%= borrowActivity.unsettled_payments %></p>
+        </div>
+      </section>
+
+      <h2 class="section-title">Reservation Overview</h2>
+<section class="cards">
+  <div class="card">
+    <h3>Reservations Today</h3>
+    <p><%= reservations.reservations_today %></p>
+  </div>
+
+  <div class="card">
+    <h3>Active Reservations</h3>
+    <p><%= reservations.active_reservations %></p>
+  </div>
+
+  <div class="card">
+    <h3>Waiting Reservations</h3>
+    <p><%= reservations.waiting_reservations %></p>
+  </div>
+
+  <div class="card">
+    <h3>Pending Reservations</h3>
+    <p><%= reservations.pending_reservations %></p>
+  </div>
+
+  <div class="card">
+    <h3>Expired Reservations</h3>
+    <p><%= reservations.expired_reservations %></p>
+  </div>
+</section>
+
+      
+    </main>
+  </body>
+</html>

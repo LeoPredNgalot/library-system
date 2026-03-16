@@ -1,0 +1,146 @@
+/* =====================
+   Base reset
+===================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+  background-color: #f4f6f8;
+  min-height: 100vh;
+  padding: 3rem 1rem;
+}
+
+/* =====================
+   Headings
+===================== */
+h1 {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.notification {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+/* =====================
+   Form container
+===================== */
+form {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  padding: 2rem 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* =====================
+   Photo preview
+===================== */
+.previewContainer {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background-color: #eaeaea;
+  margin: 0 auto 0.75rem;
+  border: 2px solid #ddd;
+}
+
+.studentPhoto {
+  display: block;
+  margin: 0 auto 1.5rem;
+  font-size: 0.85rem;
+}
+
+/* =====================
+   Input groups
+===================== */
+.inputGroup {
+  margin-bottom: 1.1rem;
+}
+
+input[type="text"],
+input[type="email"],
+select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input::placeholder {
+  color: #999;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+
+/* =====================
+   Error messages
+===================== */
+.errorMessageContainer {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: #d32f2f;
+}
+
+/* =====================
+   Selects
+===================== */
+select {
+  background-color: #fff;
+}
+
+/* =====================
+   Buttons
+===================== */
+button {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+#registerBtn {
+  background-color: #4f46e5;
+  color: white;
+  margin-top: 1rem;
+}
+
+#registerBtn:hover {
+  background-color: #4338ca;
+}
+
+#cancelBtn {
+  background-color: #e5e7eb;
+  color: #333;
+  margin-top: 0.6rem;
+}
+
+#cancelBtn:hover {
+  background-color: #d1d5db;
+}
+
+button:active {
+  transform: scale(0.98);
+}

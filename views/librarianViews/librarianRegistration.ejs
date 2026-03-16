@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Librarian Registration</title>
+    <link
+      rel="stylesheet"
+      href="/styles/librarianPagesStyleFolder/librarianRegistration.css" />
+  </head>
+
+  <body>
+    <div class="form-container">
+      <h2>Librarian Registration</h2>
+
+      <form
+        id="form"
+        action="/librarians/register"
+        method="POST"
+        enctype="multipart/form-data">
+        <label for="librarianFirstName">First Name</label>
+        <input
+          type="text"
+          id="librarianFirstName"
+          name="librarianFirstName"
+          required />
+
+        <label for="librarianLastName">Last Name</label>
+        <input
+          type="text"
+          id="librarianLastName"
+          name="librarianLastName"
+          required />
+
+        <label for="librarianUserName">Username</label>
+        <input
+          type="text"
+          id="librarianUserName"
+          name="librarianUserName"
+          required />
+
+        <label for="librarianPassword">Password</label>
+        <input
+          type="password"
+          id="librarianPassword"
+          name="librarianPassword"
+          minlength="8"
+          required />
+
+        <label for="librarianEmail">Email</label>
+        <input
+          type="email"
+          id="librarianEmail"
+          name="librarianEmail"
+          required />
+
+        <label for="librarianContactNumber">Contact Number</label>
+        <input
+          type="tel"
+          id="librarianContactNumber"
+          name="librarianContactNumber" />
+
+        <div class="btn-group">
+          <button type="submit" class="btn-register">Register</button>
+          <button
+            type="button"
+            class="btn-cancel"
+            onclick="window.location.href='/librarian/view-all-librarians'">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+    <script src="/librarianPagesScripts/librarianRegistration.js"></script>
+  </body>
+</html>

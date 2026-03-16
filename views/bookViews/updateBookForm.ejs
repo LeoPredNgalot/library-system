@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update Book — Voctech Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+  <link rel="stylesheet" href="/styles/bookPagesStyleFolder/updateBookForm.css" />
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
+</head>
+
+
+
+<body>
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-eyebrow">Books</span>
+      <span class="topbar-title">Edit Book</span>
+    </div>
+    <button class="back-btn" id="backBtn">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Books
+    </button>
+  </div>
+
+  <div class="page-body">
+    <form id="form" method="post" enctype="multipart/form-data">
+      <div class="form-layout">
+
+        <!-- ── LEFT COLUMN ── -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Cover Photo -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <div><div class="card-title">Book Cover</div><div class="card-sub">Upload to replace</div></div>
+            </div>
+            <div class="card-body">
+              <div class="cover-wrap" id="coverWrap">
+                <% if (book.book_photo_file_path) { %>
+                 <img src="/uploads/<%= book.book_photo_file_path %>" alt="Cover of <%= book.title %>" />
+                  <div class="cover-replace-bar">Click to replace</div>
+                <% } else { %>
+                  <img src="/uploads/<%= book.book_photo_file_path %>" alt="Cover of <%= book.title %>" />
+                  <div class="cover-hint" id="coverHint">
+                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#3d5a73" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Click to upload</span>
+                    <small>PNG, JPG, JPEG</small>
+                  </div>
+                <% } %>
+                <input class="cover-file-input" type="file" name="bookPhoto" id="bookPhoto" accept=".png,.jpg,.jpeg" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Copy count summary -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-icon"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg></div>
+              <div><div class="card-title">Copy Count</div><div class="card-sub">Tracks as you add/remove</div></div>
+            </div>
+            <div class="card-body" style="text-align:center;padding:18px 20px;">
+              <div style="font-size:36px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent);line-height:1;" id="bookCountContainer">
+                <span id="bookCount"><%= book.total_copies %></span>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px;">Total Copies</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── RIGHT COLUMN ── -->
+        <div class="card" style="animation-delay:0.08s;">
+          <div class="card-head">
+            <div class="card-icon"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+            <div><div class="card-title">Book Information</div><div class="card-sub">Update the fields below</div></div>
+          </div>
+          <div class="card-body">
+
+            <span id="bookId" style="display:none;"></span>
+
+            <div class="field">
+              <label for="bookTitle">Book Title <span class="req">*</span></label>
+              <input type="text" id="bookTitle"
+                data-book-id="<%= book.id %>"
+                name="bookTitle" required maxlength="50"
+                placeholder="Enter book title"
+                value="<%= book.title %>" />
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="bookAuthor">Author <span class="req">*</span></label>
+                <input type="text" id="bookAuthor" name="bookAuthor" required maxlength="50"
+                  placeholder="Author name" value="<%= book.author %>" />
+              </div>
+              <div class="field">
+                <label for="bookIsbn">ISBN</label>
+                <input type="text" id="bookIsbn" name="bookIsbn" maxlength="50"
+                  placeholder="e.g. 978-3-16-148410-0" value="<%= book.isbn %>" />
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="bookPublisher">Publisher</label>
+                <input type="text" id="bookPublisher" name="bookPublisher" maxlength="50"
+                  placeholder="Publisher name" value="<%= book.publisher %>" />
+              </div>
+              <div class="field">
+                <label for="bookYearPublished">Year Published</label>
+                <input type="number" id="bookYearPublished" name="bookYearPublished"
+                  min="1900" max="2100" placeholder="e.g. 2023"
+                  value="<%= book.year_published %>" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="bookLocation">Shelf Location</label>
+              <input type="text" id="bookLocation" name="bookLocation" maxlength="50"
+                placeholder="e.g. Shelf A-3" value="<%= book.book_location %>" />
+            </div>
+
+            <div class="field">
+              <label for="bookGenre">Genre</label>
+              <div class="select-wrap">
+                <select id="bookGenre" name="bookGenre">
+                  <option value="">Select genre</option>
+                  <% const genres = ['MATH','SCIENCE','ENGLISH','FICTION','FILIPINO','HISTORY','LITERATURE']; %>
+                  <% genres.forEach(g => { %>
+                    <option value="<%= g %>" <%= book.genre && book.genre.toUpperCase() === g ? 'selected' : '' %>><%= g.charAt(0) + g.slice(1).toLowerCase() %></option>
+                  <% }) %>
+                </select>
+                <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <!-- ── COPIES ── -->
+            <div class="copies-section">
+              <div class="copies-header">
+                <span class="copies-title-lbl">Book Copies</span>
+                <span class="copy-count-badge">Total: <strong id="copyCountDisplay"><%= book.total_copies %></strong></span>
+              </div>
+
+              <div class="bookIdSectionScrollArea" id="bookIdSectionScrollArea">
+                <% bookIdArray.forEach(copy => { %>
+                <span class="bookIdContainer">
+                  <input type="text" name="bookIds[]" value="<%= copy.copy_id %>" readonly />
+                  <% if (copy.lost === 1) { %>
+                    <span class="copy-status lost">Lost</span>
+                    <button type="button" class="copy-action-btn foundBtn" data-copy-id="<%= copy.copy_id %>">
+                      <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                      Mark Found
+                    </button>
+                  <% } else { %>
+                    <button type="button" class="copy-action-btn markAsLostBtn" data-copy-id="<%= copy.copy_id %>">
+                      <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                      Lost
+                    </button>
+                  <% } %>
+                  <% if (copy.damaged === 1) { %>
+                    <span class="copy-status damaged">Damaged</span>
+                    <button type="button" class="copy-action-btn repairedBtn" data-copy-id="<%= copy.copy_id %>">
+                      <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                      Repaired
+                    </button>
+                  <% } else { %>
+                    <button type="button" class="copy-action-btn markAsDamageBtn" data-copy-id="<%= copy.copy_id %>">
+                      <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01"/></svg>
+                      Damaged
+                    </button>
+                  <% } %>
+                  <button type="button" class="copy-action-btn updateRemoveBtn" data-copy-id="<%= copy.copy_id %>">
+                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Remove
+                  </button>
+                </span>
+                <% }) %>
+              </div>
+
+              <button type="button" class="add-copy-btn" id="addBookIdBtn">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Copy ID
+              </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" id="backBtn2">Cancel</button>
+              <button type="button" class="btn-submit" id="updateBook">
+                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Save Changes
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ CONFIRM MODAL ══ -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-icon">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <div>
+        <div class="modal-head-title" id="modalTitle"></div>
+        <div class="modal-head-sub" id="modalMessage"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modalCancelBtn">Cancel</button>
+      <button class="btn-confirm" id="modalConfirmBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  
+
+  function toggleTrans(btn) {
+    const sub = document.getElementById('transSubmenu');
+    btn.classList.toggle('open', sub.classList.toggle('open'));
+  }
+  function toggleProfile() {
+    const panel = document.getElementById('profilePanel');
+    const chevron = document.getElementById('profileChevron');
+    const isOpen = panel.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#profileWrap')) {
+      document.getElementById('profilePanel').classList.remove('open');
+      document.getElementById('profileChevron').style.transform = '';
+    }
+  });
+
+  document.getElementById('bookPhoto').addEventListener('change', function() {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('coverImg');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      const hint = document.getElementById('coverHint');
+      if (hint) hint.classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // NOTE: bookCountEl, backBtn2, scrollArea are all declared in updateBook.js — do NOT redeclare here
+
+  function openConfirmModal({ title, message, onConfirm }) {
+    const modal = document.getElementById('modal');
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalMessage').textContent = message;
+    modal.classList.remove('hidden');
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    confirmBtn.onclick = null;
+    confirmBtn.onclick = async () => {
+      confirmBtn.disabled = true;
+      try { await onConfirm(); }
+      finally { confirmBtn.disabled = false; modal.classList.add('hidden'); }
+    };
+  }
+  document.getElementById('modalCancelBtn').addEventListener('click', () => {
+    document.getElementById('modal').classList.add('hidden');
+  });
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) document.getElementById('modal').classList.add('hidden');
+  });
+</script>
+
+<script src="/bookPagesScripts/updateBook.js"></script>
+
+</body>
+</html>

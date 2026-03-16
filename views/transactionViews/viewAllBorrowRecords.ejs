@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Borrow Records — Voctech Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+  <link rel="stylesheet" href="/styles/transactionPagesStyleFolder/viewAllBorrowRecords.css">
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
+  <script>
+    if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+      document.documentElement.classList.add('embedded');
+    }
+  </script>
+  <style>
+    html.embedded .sidebar { display: none !important; }
+    html.embedded .main    { margin-left: 0 !important; }
+  </style>
+</head>
+<body>
+
+
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Borrow Records</span>
+    </div>
+  </div>
+
+  <div class="page-body">
+     <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+      <button type="button" class="topbar-btn" id="openBorrowFormBtn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Borrow
+      </button>
+    </div>
+    <div class="table-card">
+      <div class="filter-bar">
+
+        <!-- Search input — stretches to fill space -->
+        <div class="filter-search">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" class="filter-input" placeholder="Search title / copy ID / student name…" value="<%= filters?.q || '' %>" />
+        </div>
+
+        <!-- View Filter -->
+        <div class="select-wrap">
+          <select id="viewFilter" class="filter-select">
+            <option value=""         <%= (!filters?.view)                  ? 'selected' : '' %>>Status: All</option>
+            <option value="borrowed" <%= (filters?.view === 'borrowed')    ? 'selected' : '' %>>Borrowed</option>
+            <option value="returned" <%= (filters?.view === 'returned')    ? 'selected' : '' %>>Returned</option>
+            <option value="lost"     <%= (filters?.view === 'lost')        ? 'selected' : '' %>>Lost</option>
+            <option value="damaged"  <%= (filters?.view === 'damaged')     ? 'selected' : '' %>>Damaged</option>
+            <option value="overdue"  <%= (filters?.view === 'overdue')     ? 'selected' : '' %>>Overdue</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Payment Filter -->
+        <div class="select-wrap">
+          <select id="paymentFilter" class="filter-select">
+            <option value=""          <%= (!filters?.payment)                 ? 'selected' : '' %>>Payment: All</option>
+            <option value="UNSETTLED" <%= (filters?.payment === 'UNSETTLED')  ? 'selected' : '' %>>Unsettled</option>
+            <option value="SETTLED"   <%= (filters?.payment === 'SETTLED')    ? 'selected' : '' %>>Settled</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Grade Filter -->
+        <div class="select-wrap">
+          <select id="gradeFilter" class="filter-select">
+            <option value=""   <%= (!filters?.grade)           ? 'selected' : '' %>>Grade: All</option>
+            <option value="11" <%= (filters?.grade === '11')   ? 'selected' : '' %>>Grade 11</option>
+            <option value="12" <%= (filters?.grade === '12')   ? 'selected' : '' %>>Grade 12</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Section Filter -->
+        <div class="select-wrap">
+          <select id="sectionFilter" class="filter-select" data-selected="<%= filters?.section || '' %>">
+            <option value="">Section: All</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Search button — far right, books page style -->
+        <button type="button" id="searchBtn" class="btn-search">Apply</button>
+
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Book Title</th><th>Copy ID</th><th>First Name</th><th>Last Name</th>
+              <th>Grade</th><th>Section</th><th>Borrow Date</th><th>Due Date</th>
+              <th>Return Date</th><th>Status</th><th>Fine</th><th>Payment</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTbody">
+            <% if (!records || records.length === 0) { %>
+              <tr class="no-data-row"><td colspan="13">No borrow records found.</td></tr>
+            <% } %>
+            <% (records || []).forEach(r => { %>
+            <tr>
+              <td><span class="cell-title"><%= r.bookTitle %></span></td>
+              <td><span class="cell-mono"><%= r.copyID %></span></td>
+              <td><%= r.fName %></td>
+              <td><%= r.lName %></td>
+              <td><%= r.grade %></td>
+              <td><%= r.section %></td>
+              <td><%= r.borrowDate %></td>
+              <td><%= r.dueDate %></td>
+              <td><%= r.returnDate ?? '—' %></td>
+              <td>
+                <% const statusClass = {'BORROWED':'badge-borrowed','RETURNED':'badge-returned','LOST':'badge-lost','DAMAGED':'badge-damaged','OVERDUE':'badge-overdue'}[r.displayStatus]||''; %>
+                <!-- <td><%= r.borrowStatus %></td> -->
+                <span class="badge <%= statusClass %>"><%= r.displayStatus %></span>
+              </td>
+              <td><span class="<%= (r.fineAmount>0)?'cell-fine-pos':'cell-fine-zero' %>"><%=  '₱' + (r.fineAmount??0) %></span></td>
+              <td><span class="badge <%= r.paymentStatus==='SETTLED'?'badge-settled':'badge-unsettled' %>"><%= r.paymentStatus %></span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                  <% if (r.borrowStatus === 'BORROWED') { %>
+                    <button class="tbl-btn return returnBookBtn" data-book-copy-id="<%= r.copyID %>">
+                      <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>Return
+                    </button>
+                    <button class="tbl-btn lost lostBookBtn" data-book-copy-id="<%= r.copyID %>">
+                      <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Lost
+                    </button>
+                    <button class="tbl-btn damaged damagedBookBtn" data-book-copy-id="<%= r.copyID %>">
+                      <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>Damaged
+                    </button>
+                  <% } else if ((r.borrowStatus==='LOST'||r.borrowStatus==='DAMAGED') && r.paymentStatus==='UNSETTLED') { %>
+                    <button class="tbl-btn settle settlePaymentBtn" data-borrow-id="<%= r.borrowId %>">
+                      <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Settle
+                    </button>
+                  <% } else { %>
+                    <span class="no-action">—</span>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <% const p = pagination || { page:1, totalPages:1 }; %>
+      <div class="pagination">
+        <p class="page-info">Page <span><%= p.page %></span> of <span><%= p.totalPages %></span></p>
+        <div class="pg-btns">
+          <button class="pg-btn page-btn" data-page="<%= Math.max(p.page-1,1) %>" <%= (p.page<=1)?'disabled':'' %>>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev
+          </button>
+          <button class="pg-btn page-btn" data-page="<%= Math.min(p.page+1,p.totalPages) %>" <%= (p.page>=p.totalPages)?'disabled':'' %>>
+            Next <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BORROW MODAL -->
+<div class="modal-overlay hidden" id="borrowPanel">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-icon">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      </div>
+      <div>
+        <div class="modal-head-title">Record Borrow</div>
+        <div class="modal-head-sub">Fill in the details to log a book borrowing.</div>
+      </div>
+      <button type="button" class="btn-close" id="closeBorrowFormBtn">
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="borrowForm">
+      <div class="modal-body">
+        <div>
+          <label class="field-label">Student <span>*</span></label>
+          <div class="ac-wrap">
+            <div class="field-wrap" id="studentInputWrap">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              <input type="text" id="studentSearch" class="modal-input" placeholder="Type student ID or name…" autocomplete="off" />
+              <div class="ac-selected hidden" id="studentSelected">
+                <span id="studentSelectedText"></span>
+                <button type="button" class="ac-clear" id="clearStudent">✕</button>
+              </div>
+            </div>
+            <ul class="ac-dropdown hidden" id="studentDropdown"></ul>
+            <input type="hidden" id="selectedStudentId" name="studentId" />
+          </div>
+        </div>
+        <div id="bookFieldWrap">
+          <label class="field-label">Book Title <span>*</span></label>
+          <div class="ac-wrap">
+            <div class="field-wrap" id="bookInputWrap">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path stroke-linecap="round" stroke-linejoin="round" d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+              <input type="text" id="bookSearch" class="modal-input" placeholder="Type book title…" autocomplete="off" />
+              <div class="ac-selected hidden" id="bookSelected">
+                <span id="bookSelectedText"></span>
+                <button type="button" class="ac-clear" id="clearBook">✕</button>
+              </div>
+            </div>
+            <ul class="ac-dropdown hidden" id="bookDropdown"></ul>
+            <input type="hidden" id="selectedBookId" />
+          </div>
+        </div>
+        <div id="copyFieldWrap">
+          <label class="field-label">Book Copy <span>*</span></label>
+          <div class="select-wrap">
+            <select id="copySelect" class="copy-select-full">
+              <option value="">— select a copy —</option>
+            </select>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <input type="hidden" id="selectedCopyId" name="bookCopyId" />
+        </div>
+        <div id="dueDateWrap">
+          <label class="field-label">Due Date <span>*</span></label>
+          <div class="field-wrap">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <input type="date" id="borrowDueDate" name="dueDate" min="<%= new Date().toISOString().split('T')[0] %>" class="modal-input" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-divider"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="clearBorrowFormBtn">Clear</button>
+        <button type="submit" id="recordBtn" class="btn-primary" disabled>
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Record
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast hidden" id="notificationToast"></div>
+
+<script>
+  function toggleTrans() {
+    const sub = document.getElementById('transSubmenu');
+    const chevron = document.getElementById('transChevron');
+    const isOpen = sub.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+  }
+  document.getElementById('transChevron').style.transform = 'rotate(180deg)';
+  function toggleProfile() {
+    const panel = document.getElementById('profilePanel');
+    const chevron = document.getElementById('profileChevron');
+    const isOpen = panel.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#profileWrap')) {
+      document.getElementById('profilePanel').classList.remove('open');
+      document.getElementById('profileChevron').style.transform = '';
+    }
+  });
+</script>
+<script src="/transactionPagesScript/viewAllBorrowRecords.js"></script>
+</body>
+</html>

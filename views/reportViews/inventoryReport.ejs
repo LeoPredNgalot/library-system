@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Report — Voctech Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+   <link rel="stylesheet" href="/styles/inventoryPagesStyleFolder/inventory.css" />
+  <link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script> <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+      document.documentElement.classList.add('embedded');
+    }
+  </script>
+
+</head>
+<body>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">Inventory Report</span>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="stat-card"><div class="stat-label">Total Books</div><div class="stat-value accent"><%= summary.total_titles %></div></div>
+      <div class="stat-card"><div class="stat-label">Total Copies</div><div class="stat-value"><%= summary.total_copies %></div></div>
+      <div class="stat-card"><div class="stat-label">Available</div><div class="stat-value green"><%= summary.total_available %></div></div>
+      <div class="stat-card"><div class="stat-label">Borrowed</div><div class="stat-value yellow"><%= summary.total_borrowed %></div></div>
+      <div class="stat-card"><div class="stat-label">Lost</div><div class="stat-value red"><%= summary.total_lost %></div></div>
+      <div class="stat-card"><div class="stat-label">Damaged</div><div class="stat-value orange"><%= summary.total_damaged %></div></div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+
+      <!-- Filter bar -->
+      <div class="table-filter">
+        <form class="filter-form" method="GET" action="/reports/inventory?embed=true">
+          <div class="filter-search">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+            <input type="text" name="search" class="filter-input" placeholder="Search by title, author, or ISBN…" value="<%= filters.search %>" autocomplete="off" />
+          </div>
+          <div class="select-wrap">
+            <select name="genre" class="filter-select">
+              <option value="">All Genres</option>
+              <% genres.forEach(item => { %>
+                <option value="<%= item %>" <%= filters.genre === item ? 'selected' : '' %>><%= item %></option>
+              <% }) %>
+            </select>
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+           
+          <a href="/reports/inventory?embed=true" class="btn-clear">Clear</a>
+
+          <button type="submit" class="btn-apply">
+            Apply
+          </button>
+         
+        </form>
+        
+      </div>
+
+      <!-- Table -->
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Title</th><th>Author</th><th>Genre</th><th>Year</th>
+              <th>Total</th><th>Available</th><th>Borrowed</th><th>Lost</th><th>Damaged</th>
+              <th>Location</th><th>Publisher</th><th>ISBN</th><th>Date Added</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (books.length === 0) { %>
+              <tr class="no-data"><td colspan="15">No books found.</td></tr>
+            <% } %>
+            <% books.forEach(book => { %>
+              <tr>
+                <td><span class="cell-id"><%= book.id %></span></td>
+                <td><span class="cell-title"><%= book.title %></span></td>
+                <td><%= book.author %></td>
+                <td><%= book.genre || '—' %></td>
+                <td><%= book.year_published || '—' %></td>
+                <td><span class="count-badge badge-total"><%= book.total_copies %></span></td>
+                <td><span class="count-badge <%= book.available_count > 0 ? 'badge-avail' : 'badge-zero' %>"><%= book.available_count %></span></td>
+                <td><span class="count-badge <%= book.borrowed_count > 0 ? 'badge-borrowed' : 'badge-zero' %>"><%= book.borrowed_count %></span></td>
+                <td><span class="count-badge <%= book.lost_count > 0 ? 'badge-lost' : 'badge-zero' %>"><%= book.lost_count %></span></td>
+                <td><span class="count-badge <%= book.damaged_count > 0 ? 'badge-damaged' : 'badge-zero' %>"><%= book.damaged_count %></span></td>
+                <td><%= book.book_location || '—' %></td>
+                <td><%= book.publisher || '—' %></td>
+                <td><span class="cell-mono"><%= book.isbn || '—' %></span></td>
+                <td><span class="cell-mono"><%= book.date_added %></span></td>
+                <td>
+                  <button class="btn-view view-book-btn" data-id="<%= book.id %>">
+                    <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    View
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination">
+        <p class="page-info">
+          Page <span><%= pagination.page %></span> of <span><%= pagination.totalPages %></span>
+          &nbsp;·&nbsp; <span><%= pagination.totalBooks %></span> books total
+        </p>
+        <div class="pg-btns">
+          <% if (pagination.hasPrev) { %>
+            <a class="pg-btn" href="/reports/inventory?page=<%= pagination.prevPage %>&search=<%= encodeURIComponent(filters.search) %>&genre=<%= encodeURIComponent(filters.genre) %>&embed=true">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev
+            </a>
+          <% } else { %>
+            <span class="pg-btn disabled"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev</span>
+          <% } %>
+          <% if (pagination.hasNext) { %>
+            <a class="pg-btn" href="/reports/inventory?page=<%= pagination.nextPage %>&search=<%= encodeURIComponent(filters.search) %>&genre=<%= encodeURIComponent(filters.genre) %>&embed=true">
+              Next <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          <% } else { %>
+            <span class="pg-btn disabled">Next <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+    <div class="page-body-end"></div>
+  </div>
+</div>
+
+<!-- ── BOOK VIEW MODAL ── -->
+<div class="modal-overlay hidden" id="bookModal">
+  <div class="modal-box">
+
+    <!-- Header -->
+    <div class="modal-head">
+      <div class="modal-icon">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <div>
+        <div class="modal-head-title">Book Details</div>
+        <div class="modal-head-sub" id="modalSub">Loading…</div>
+      </div>
+      <button class="btn-close" id="closeModal">
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Book cover + title -->
+    <div class="book-header" id="modalBookHeader">
+      <div class="book-cover" id="modalCover">
+        <div class="skeleton" style="width:100%;height:100%;"></div>
+      </div>
+      <div style="flex:1;">
+        <div class="book-title" id="modalTitle"><div class="skeleton" style="height:18px;width:80%;margin-bottom:8px;"></div></div>
+        <div class="book-author" id="modalAuthor"><div class="skeleton" style="height:14px;width:50%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Copy counts -->
+    <div class="copy-strip" id="modalCopyStrip">
+      <div class="copy-stat"><div class="copy-stat-val skeleton" style="height:22px;width:30px;margin:0 auto;"></div><div class="copy-stat-lbl">Total</div></div>
+      <div class="copy-stat"><div class="copy-stat-val skeleton" style="height:22px;width:30px;margin:0 auto;"></div><div class="copy-stat-lbl">Available</div></div>
+      <div class="copy-stat"><div class="copy-stat-val skeleton" style="height:22px;width:30px;margin:0 auto;"></div><div class="copy-stat-lbl">Borrowed</div></div>
+      <div class="copy-stat"><div class="copy-stat-val skeleton" style="height:22px;width:30px;margin:0 auto;"></div><div class="copy-stat-lbl">Lost</div></div>
+      <div class="copy-stat"><div class="copy-stat-val skeleton" style="height:22px;width:30px;margin:0 auto;"></div><div class="copy-stat-lbl">Damaged</div></div>
+    </div>
+
+    <!-- Details grid -->
+    <div class="detail-grid" id="modalDetailGrid">
+      <div class="detail-item"><div class="detail-label">Genre</div><div class="detail-value" id="md-genre">—</div></div>
+      <div class="detail-item"><div class="detail-label">Year Published</div><div class="detail-value" id="md-year">—</div></div>
+      <div class="detail-item"><div class="detail-label">Publisher</div><div class="detail-value" id="md-publisher">—</div></div>
+      <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value" id="md-location">—</div></div>
+      <div class="detail-item"><div class="detail-label">ISBN</div><div class="detail-value mono" id="md-isbn">—</div></div>
+      <div class="detail-item"><div class="detail-label">Date Added</div><div class="detail-value mono" id="md-date">—</div></div>
+    </div>
+
+    <!-- Copies list -->
+    <div class="copies-head">Book Copies</div>
+    <ul class="copies-list" id="modalCopiesList">
+      <li style="justify-content:center;color:var(--text-muted);font-size:13px;">Loading copies…</li>
+    </ul>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" id="closeModalFooter">Close</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const modal        = document.getElementById('bookModal');
+  const closeBtn     = document.getElementById('closeModal');
+  const closeFooter  = document.getElementById('closeModalFooter');
+
+  function openModal()  { modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+  function closeModal() { modal.classList.add('hidden');    document.body.style.overflow = ''; }
+
+  closeBtn.addEventListener('click', closeModal);
+  closeFooter.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  function setSkeletons() {
+    document.getElementById('modalSub').textContent = 'Loading…';
+    document.getElementById('modalTitle').innerHTML  = '<div class="skeleton" style="height:18px;width:80%;margin-bottom:8px;"></div>';
+    document.getElementById('modalAuthor').innerHTML = '<div class="skeleton" style="height:14px;width:50%;"></div>';
+    document.getElementById('modalCover').innerHTML  = '<div class="skeleton" style="width:100%;height:100%;"></div>';
+    document.getElementById('modalCopyStrip').innerHTML = Array(5).fill(0).map((_, i) => {
+      const labels = ['Total','Available','Borrowed','Lost','Damaged'];
+      return `<div class="copy-stat"><div class="copy-stat-val skeleton" style="height:22px;width:30px;margin:0 auto;"></div><div class="copy-stat-lbl">${labels[i]}</div></div>`;
+    }).join('');
+    ['md-genre','md-year','md-publisher','md-location','md-isbn','md-date'].forEach(id => {
+      document.getElementById(id).textContent = '—';
+    });
+    document.getElementById('modalCopiesList').innerHTML = '<li style="justify-content:center;color:var(--text-muted);font-size:13px;">Loading copies…</li>';
+  }
+
+  function renderModal(book, bookCopies) {
+    // Sub-header
+    document.getElementById('modalSub').textContent = `ID: ${book.id}`;
+
+    // Cover
+    const coverEl = document.getElementById('modalCover');
+    if (book.book_photo_file_path || book.bookPhotoFilePath) {
+      const src = book.book_photo_file_path || book.bookPhotoFilePath;
+      coverEl.innerHTML = `<img src="/uploads/${src}" alt="${book.title}" onerror="this.parentElement.innerHTML='<span class=\\'book-cover-placeholder\\'>No Photo</span>'" />`;
+    } else {
+      coverEl.innerHTML = `<span class="book-cover-placeholder">No Photo</span>`;
+    }
+
+    // Title / Author
+    document.getElementById('modalTitle').textContent  = book.title || '—';
+    document.getElementById('modalAuthor').textContent = book.author ? `by ${book.author}` : '—';
+
+    // Count copies by status
+    const total    = bookCopies.length;
+    const avail    = bookCopies.filter(c => c.available === 1 || c.available === true).length;
+    const borrowed = bookCopies.filter(c => c.status === 'BORROWED'  || (!c.available && c.status !== 'LOST' && c.status !== 'DAMAGED')).length;
+    const lost     = bookCopies.filter(c => c.status === 'LOST').length;
+    const damaged  = bookCopies.filter(c => c.status === 'DAMAGED').length;
+
+    document.getElementById('modalCopyStrip').innerHTML = `
+      <div class="copy-stat"><div class="copy-stat-val">${total}</div><div class="copy-stat-lbl">Total</div></div>
+      <div class="copy-stat"><div class="copy-stat-val green">${avail}</div><div class="copy-stat-lbl">Available</div></div>
+      <div class="copy-stat"><div class="copy-stat-val yellow">${borrowed}</div><div class="copy-stat-lbl">Borrowed</div></div>
+      <div class="copy-stat"><div class="copy-stat-val red">${lost}</div><div class="copy-stat-lbl">Lost</div></div>
+      <div class="copy-stat"><div class="copy-stat-val orange">${damaged}</div><div class="copy-stat-lbl">Damaged</div></div>
+    `;
+
+    // Detail fields
+    document.getElementById('md-genre').textContent     = book.genre         || '—';
+    document.getElementById('md-year').textContent      = book.year_published || '—';
+    document.getElementById('md-publisher').textContent = book.publisher      || '—';
+    document.getElementById('md-location').textContent  = book.book_location  || '—';
+    document.getElementById('md-isbn').textContent      = book.isbn           || '—';
+    document.getElementById('md-date').textContent      = book.date_added     || '—';
+
+    // Copies list
+    const list = document.getElementById('modalCopiesList');
+    if (!bookCopies.length) {
+      list.innerHTML = '<li style="justify-content:center;color:var(--text-muted);font-size:13px;">No copies found.</li>';
+    } else {
+      list.innerHTML = bookCopies.map(c => {
+        const copyId   = c.copy_id || c.copyId || c.id || '—';
+        const isAvail  = c.available === 1 || c.available === true;
+        const badgeClass = isAvail ? 'copy-available' : 'copy-unavailable';
+        const badgeText  = isAvail ? 'Available' : (c.status || 'Unavailable');
+        return `
+          <li>
+            <span class="copy-id">${copyId}</span>
+            <span class="copy-badge ${badgeClass}">${badgeText}</span>
+          </li>`;
+      }).join('');
+    }
+  }
+
+  // View button click
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.view-book-btn');
+    if (!btn) return;
+
+    const bookId = btn.dataset.id;
+    setSkeletons();
+    openModal();
+
+    try {
+      const res  = await fetch(`/book/api/${bookId}`);
+      const data = await res.json();
+      if (data.success) {
+        renderModal(data.book, data.bookCopies);
+      } else {
+        document.getElementById('modalSub').textContent = 'Failed to load book data.';
+      }
+    } catch (err) {
+      console.error('Modal fetch error:', err);
+      document.getElementById('modalSub').textContent = 'Error loading book.';
+    }
+  });
+</script>
+
+</body>
+</html>

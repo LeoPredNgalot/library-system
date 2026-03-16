@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Librarian Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 6px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .readonly {
+      background-color: #e9ecef;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Librarian Profile</h2>
+
+    <!-- PROFILE UPDATE FORM -->
+    <form action="/librarian/profile/update" method="POST">
+
+      <!-- Username (usually not editable) -->
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        value="<%= librarian.user_name %>"
+        class="readonly"
+        readonly
+      >
+
+      <!-- Email -->
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        value="<%= librarian.email %>"
+        required
+      >
+
+      <!-- Contact Number -->
+      <label for="contact_number">Contact Number</label>
+      <input
+        type="text"
+        id="contact_number"
+        name="contact_number"
+        value="<%= librarian.contact_number %>"
+      >
+
+      <button type="submit">Update Profile</button>
+    </form>
+  </div>
+
+</body>
+</html>

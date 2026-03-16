@@ -1,0 +1,7 @@
+
+# DIRI USUWAT ANG MGA THINGS NGA 
+# WE DO NOT WANT TO SHARE TO OTHERS
+
+.env
+node_modules/
+uploads/

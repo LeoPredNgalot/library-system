@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library Books — Voctech Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+  <link rel="stylesheet" href="/styles/bookPagesStyleFolder/getAllBooks.css" />
+
+  <script>
+    if (new URLSearchParams(window.location.search).get('embed') === 'true') {
+      document.documentElement.classList.add('embedded');
+    }
+  </script>
+
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
+  <style>
+    html.embedded .sidebar { display: none !important; }
+    html.embedded .main    { margin-left: 0 !important; }
+  </style>
+</head>
+<body>
+
+
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      
+      <span class="topbar-title">Books</span>
+    </div>
+  </div>
+
+
+
+  <div class="page-body">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+      <a href="/book/add" class="topbar-btn" id="AddBookBtn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Book
+      </a>
+    </div>
+
+    <div class="table-card">
+      <div class="filter-bar">
+        <div class="filter-search">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="bookSearchInput" class="filter-input" placeholder="Search by title, author, ISBN…" />
+        </div>
+        <div class="select-wrap">
+          <select id="sortSelect" class="filter-select">
+            <option value="ASC" <%= (query && query.sort === 'ASC') || !query || !query.sort ? 'selected' : '' %>>Title A–Z</option>
+            <option value="DESC" <%= query && query.sort === 'DESC' ? 'selected' : '' %>>Title Z–A</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="select-wrap">
+          <select id="genreFilter" class="filter-select">
+            <option value="">All Genres</option>
+            <option value="MATH"      <%= query && query.genre === 'MATH'      ? 'selected':'' %>>Math</option>
+            <option value="ENGLISH"   <%= query && query.genre === 'ENGLISH'   ? 'selected':'' %>>English</option>
+            <option value="SCIENCE"   <%= query && query.genre === 'SCIENCE'   ? 'selected':'' %>>Science</option>
+            <option value="HISTORY"   <%= query && query.genre === 'HISTORY'   ? 'selected':'' %>>History</option>
+            <option value="FICTION"   <%= query && query.genre === 'FICTION'   ? 'selected':'' %>>Fiction</option>
+            <option value="FILIPINO"  <%= query && query.genre === 'FILIPINO'  ? 'selected':'' %>>Filipino</option>
+            <option value="LITERATURE"<%= query && query.genre === 'LITERATURE'? 'selected':'' %>>Literature</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <button class="btn-search" id="bookSearchBtn">
+          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+          Search
+        </button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th><th>Author</th><th>ISBN</th><th>Publisher</th>
+              <th>Genre</th><th>Location</th><th>Total</th><th>Available</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody class="books-list">
+            <% if (books && books.length > 0) { %>
+              <% books.forEach(b => { %>
+              <tr class="book-card">
+                <td>
+                  <div class="book-title-cell">
+                    <div class="book-thumb">
+                      <% if (b.book_photo_file_path) { %>
+                        <img src="/uploads/<%= b.book_photo_file_path %>" alt="<%= b.title %>" />
+                      <% } else { %>
+                        <span class="no-photo-text">No Photo</span>
+                      <% } %>
+                    </div>
+                    <span class="book-title-text"><%= b.title %></span>
+                  </div>
+                </td>
+                <td><%= b.author %></td>
+                <td><span class="mono"><%= b.isbn || '—' %></span></td>
+                <td><%= b.publisher || '—' %></td>
+                <td>
+                  <%
+                    const gc = { MATH:'genre-MATH', ENGLISH:'genre-ENGLISH', SCIENCE:'genre-SCIENCE', HISTORY:'genre-HISTORY', FICTION:'genre-FICTION', FILIPINO:'genre-FILIPINO', LITERATURE:'genre-LITERATURE' }[b.genre] || '';
+                  %>
+                  <span class="genre-badge <%= gc %>"><%= b.genre || '—' %></span>
+                </td>
+                <td><%= b.book_location || '—' %></td>
+                <td><%= b.total_copies %></td>
+                <td><span class="<%= b.available_count > 2 ? 'avail-high' : 'avail-low' %>"><%= b.available_count %></span></td>
+                <td>
+                  <div class="actions-cell">
+                    <button type="button" class="action-btn view viewBookBtn" data-id="<%= b.id %>" title="View">
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </button>
+                    <button type="button" class="action-btn update updateBtn" data-id="<%= b.id %>" title="Edit">
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <button type="button" class="action-btn delete deleteBtn" data-id="<%= b.id %>" title="Delete">
+                      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+            <% } else { %>
+              <tr class="no-data-row"><td colspan="9">No books found.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <% const q = query || {}; %>
+      <div class="pagination">
+        <p class="page-info">Page <span><%= page %></span> of <span><%= totalPages %></span></p>
+        <div class="pg-btns">
+          <% if (page > 1) { %>
+            <a href="?page=<%= page-1 %>&sort=<%= q.sort||'ASC' %>&genre=<%= q.genre||'' %>&embed=<%= q.embed||'' %>" class="pg-btn">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev
+            </a>
+          <% } else { %>
+            <span class="pg-btn disabled"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Prev</span>
+          <% } %>
+          <% for(let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>&sort=<%= q.sort||'ASC' %>&genre=<%= q.genre||'' %>&embed=<%= q.embed||'' %>" class="pg-btn <%= i === page ? 'active' : '' %>"><%= i %></a>
+          <% } %>
+          <% if (page < totalPages) { %>
+            <a href="?page=<%= page+1 %>&sort=<%= q.sort||'ASC' %>&genre=<%= q.genre||'' %>&embed=<%= q.embed||'' %>" class="pg-btn">
+              Next <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          <% } else { %>
+            <span class="pg-btn disabled">Next <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay hidden" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-icon danger">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#f87171" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+      </div>
+      <div><div class="modal-head-title" id="modalTitle"></div><div class="modal-head-sub">This action cannot be undone</div></div>
+    </div>
+    <div class="modal-body" id="modalMessage"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modalCancelBtn">Cancel</button>
+      <button class="btn-danger" id="modalConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW BOOK MODAL -->
+<div class="modal-overlay hidden" id="viewBookModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div class="modal-icon info">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      </div>
+      <div>
+        <div class="modal-head-title">Book Details</div>
+        <div class="modal-head-sub">Voctech Library</div>
+      </div>
+      <button class="btn-close" id="viewBookCloseBtn">
+        <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="viewBookLoading" style="padding:32px 24px;">
+      <div style="display:flex;gap:18px;margin-bottom:20px;">
+        <div style="width:72px;height:100px;border-radius:8px;background:rgba(255,255,255,0.05);flex-shrink:0;animation:pulse 1.4s ease infinite;"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+          <div style="height:18px;width:55%;border-radius:6px;background:rgba(255,255,255,0.05);animation:pulse 1.4s ease infinite;"></div>
+          <div style="height:12px;width:30%;border-radius:6px;background:rgba(255,255,255,0.04);animation:pulse 1.4s 0.1s ease infinite;"></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;">
+            <div style="height:36px;border-radius:6px;background:rgba(255,255,255,0.04);animation:pulse 1.4s 0.15s ease infinite;"></div>
+            <div style="height:36px;border-radius:6px;background:rgba(255,255,255,0.04);animation:pulse 1.4s 0.2s ease infinite;"></div>
+            <div style="height:36px;border-radius:6px;background:rgba(255,255,255,0.04);animation:pulse 1.4s 0.25s ease infinite;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viewBookContent" style="display:none;">
+      <div class="vb-header">
+        <div class="vb-cover">
+          <img id="vbCover" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;" />
+          <span id="vbNoPhoto" class="vb-cover-placeholder">No Photo</span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="vb-title" id="vbTitle"></div>
+          <div class="vb-author">by <strong id="vbAuthor"></strong></div>
+          <div class="vb-meta-grid">
+            <div class="vb-meta-item"><div class="vb-meta-label">Genre</div><span class="genre-badge" id="vbGenre"></span></div>
+            <div class="vb-meta-item"><div class="vb-meta-label">Publisher</div><div class="vb-meta-value" id="vbPublisher"></div></div>
+            <div class="vb-meta-item"><div class="vb-meta-label">ISBN</div><div class="vb-meta-value mono" id="vbIsbn"></div></div>
+            <div class="vb-meta-item"><div class="vb-meta-label">Shelf Location</div><div class="vb-meta-value" id="vbLocation"></div></div>
+            <div class="vb-meta-item"><div class="vb-meta-label">Year Published</div><div class="vb-meta-value" id="vbYear"></div></div>
+            <div class="vb-meta-item"><div class="vb-meta-label">Date Added</div><div class="vb-meta-value" id="vbDateAdded"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="vb-stats">
+        <div class="vb-stat"><div class="vb-stat-val" id="vbTotal"></div><div class="vb-stat-lbl">Total</div></div>
+        <div class="vb-stat"><div class="vb-stat-val" style="color:#34d399" id="vbAvailable"></div><div class="vb-stat-lbl">Available</div></div>
+        <div class="vb-stat"><div class="vb-stat-val" style="color:#fbbf24" id="vbBorrowed"></div><div class="vb-stat-lbl">Borrowed</div></div>
+        <div class="vb-stat"><div class="vb-stat-val" style="color:#f87171" id="vbLost"></div><div class="vb-stat-lbl">Lost</div></div>
+        <div class="vb-stat"><div class="vb-stat-val" style="color:#fb923c" id="vbDamaged"></div><div class="vb-stat-lbl">Damaged</div></div>
+      </div>
+      <div class="copies-head">Book Copies</div>
+      <ul class="copies-list" id="vbCopiesList"></ul>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="viewBookCloseBtn2">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast hidden" id="notificationToast"></div>
+
+<template id="bookCardTemplate">
+  <tr class="book-card">
+    <td><div class="book-title-cell"><div class="book-thumb"></div></div></div><span class="book-title font-semibold"></span></div></td>
+    <td class="author"></td><td><span class="isbn mono"></span></td><td class="publisher"></td>
+    <td class="genre"></td><td class="location"></td><td class="total"></td><td class="available"></td>
+    <td><div class="actions-cell">
+      <button type="button" class="action-btn view viewBookBtn" title="View"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+      <button type="button" class="action-btn update updateBtn" title="Edit"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+      <button type="button" class="action-btn delete deleteBtn" title="Delete"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+    </div></td>
+  </tr>
+</template>
+
+<script>
+  function toggleTrans(btn) {
+    const sub = document.getElementById('transSubmenu');
+    btn.classList.toggle('open', sub.classList.toggle('open'));
+  }
+  function toggleProfile() {
+    const panel   = document.getElementById('profilePanel');
+    const chevron = document.getElementById('profileChevron');
+    const isOpen  = panel.classList.toggle('open');
+    chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#profileWrap')) {
+      document.getElementById('profilePanel').classList.remove('open');
+      document.getElementById('profileChevron').style.transform = '';
+    }
+  });
+</script>
+<script src="/bookPagesScripts/getAllBooks.js"></script>
+<script>
+  const genreColorMap = {
+    MATH:'genre-MATH', ENGLISH:'genre-ENGLISH', SCIENCE:'genre-SCIENCE',
+    HISTORY:'genre-HISTORY', FICTION:'genre-FICTION', FILIPINO:'genre-FILIPINO',
+    LITERATURE:'genre-LITERATURE'
+  };
+  async function openBookDetails(id) {
+    const overlay = document.getElementById('viewBookModal');
+    const loading = document.getElementById('viewBookLoading');
+    const content = document.getElementById('viewBookContent');
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    overlay.classList.remove('hidden');
+    try {
+      const res  = await fetch(`/book/get/viewBook/api/${id}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const book = data.book;
+      const copies = data.bookCopies || [];
+      document.getElementById('vbTitle').textContent     = book.title         || '—';
+      document.getElementById('vbAuthor').textContent    = book.author        || '—';
+      document.getElementById('vbPublisher').textContent = book.publisher     || '—';
+      document.getElementById('vbIsbn').textContent      = book.isbn          || '—';
+      document.getElementById('vbLocation').textContent  = book.book_location || '—';
+      document.getElementById('vbYear').textContent      = book.year_published|| '—';
+      document.getElementById('vbDateAdded').textContent = book.date_added ? new Date(book.date_added).toLocaleDateString() : '—';
+      document.getElementById('vbTotal').textContent     = book.total_copies    ?? '0';
+      document.getElementById('vbAvailable').textContent = book.available_count ?? '0';
+      document.getElementById('vbBorrowed').textContent  = book.borrowed_count  ?? '0';
+      document.getElementById('vbLost').textContent      = book.lost_count      ?? '0';
+      document.getElementById('vbDamaged').textContent   = book.damaged_count   ?? '0';
+      const genreEl = document.getElementById('vbGenre');
+      const g = (book.genre || '').toUpperCase();
+      genreEl.textContent = book.genre || '—';
+      genreEl.className   = 'genre-badge' + (genreColorMap[g] ? ' ' + genreColorMap[g] : '');
+      const coverImg = document.getElementById('vbCover');
+      const noPhoto  = document.getElementById('vbNoPhoto');
+      if (book.book_photo_file_path) {
+        coverImg.src = `/uploads/${book.book_photo_file_path}`;
+        coverImg.alt = book.title;
+        coverImg.style.display = 'block';
+        noPhoto.style.display  = 'none';
+      } else {
+        coverImg.style.display = 'none';
+        noPhoto.style.display  = 'flex';
+      }
+      const list = document.getElementById('vbCopiesList');
+      list.innerHTML = '';
+      if (!copies.length) {
+        list.innerHTML = `<li style="padding:14px 20px;color:var(--text-muted);font-size:13px;">No copies found.</li>`;
+      } else {
+        copies.forEach(copy => {
+          const isBorrowed  = copy.borrowed === 1 || copy.borrowed === true;
+          const isLost      = copy.lost     === 1 || copy.lost     === true;
+          const isDamaged   = copy.damaged  === 1 || copy.damaged  === true;
+          const isAvailable = !isBorrowed && !isLost && !isDamaged;
+          let badge;
+          if (isAvailable)     badge = `<span class="badge badge-available">Available</span>`;
+          else if (isBorrowed) badge = `<span class="badge badge-borrowed">Borrowed</span>`;
+          else { const issues = [isLost && 'Lost', isDamaged && 'Damaged'].filter(Boolean).join(', '); badge = `<span class="badge badge-unavailable">${issues}</span>`; }
+          const li = document.createElement('li');
+          li.innerHTML = `<span class="copy-id">${copy.copy_id}</span>${badge}`;
+          list.appendChild(li);
+        });
+      }
+      loading.style.display = 'none';
+      content.style.display = 'block';
+    } catch(err) {
+      console.error('openBookDetails error:', err);
+      loading.innerHTML = `<p style="text-align:center;color:#f87171;font-size:13px;padding:32px;">Failed to load book details.</p>`;
+    }
+  }
+  function closeViewBookModal() {
+    document.getElementById('viewBookModal').classList.add('hidden');
+    document.getElementById('viewBookLoading').style.display = 'block';
+    document.getElementById('viewBookContent').style.display = 'none';
+  }
+  document.getElementById('viewBookCloseBtn').addEventListener('click', closeViewBookModal);
+  document.getElementById('viewBookCloseBtn2').addEventListener('click', closeViewBookModal);
+  document.getElementById('viewBookModal').addEventListener('click', e => { if (e.target === document.getElementById('viewBookModal')) closeViewBookModal(); });
+</script>
+</body>
+</html>

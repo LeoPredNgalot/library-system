@@ -1,0 +1,166 @@
+/* I NEED TO IMPORT SOME CSS FILE HERE */
+/* TO STYLE THE MODALS */
+
+@import url("../styles/confirmModal.css");
+
+/* ===== Reset ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+body {
+  background-color: #f4f6f8;
+  padding: 2rem;
+}
+
+/* ===== Headings ===== */
+h1 {
+  text-align: center;
+  margin-bottom: 0.3rem;
+}
+
+.notification {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== Form Container ===== */
+form {
+  max-width: 1100px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 0.6rem;
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* ===== Photo Section ===== */
+.form_section0 {
+  border: none;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.previewContainer {
+  width: 120px;
+  height: 160px;
+  background-color: #e9ecef;
+  border-radius: 0.4rem;
+  margin: 0 auto 0.5rem;
+}
+
+.bookPhotoInput {
+  border: none;
+}
+
+/* ===== Two Column Layout ===== */
+.form_flex {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1.5rem;
+}
+
+/* ===== Fieldsets ===== */
+fieldset {
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  padding: 1rem;
+}
+
+legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ===== Inputs ===== */
+.inputGroup {
+  margin-bottom: 0.8rem;
+}
+
+form input,
+form select {
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+form input:focus,
+form select:focus {
+  outline: none;
+  border-color: #4aa3df;
+}
+
+.errorMessageContainer {
+  font-size: 0.75rem;
+  color: red;
+  margin-top: 0.2rem;
+}
+
+/* ===== Book IDs Section ===== */
+.bookIdSectionScrollArea {
+  background-color: #f1f3f5;
+  border-radius: 0.3rem;
+  padding: 0.6rem;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 0.6rem;
+}
+
+/* Individual Book ID Row (added dynamically) */
+.scrollAreaSpan {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  padding: 0.4rem;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.scrollAreaSpan input {
+  flex: 1;
+  font-size: 0.8rem;
+}
+
+/* ===== Buttons ===== */
+button {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  background-color: #e9ecef;
+}
+
+.addBookIdBtn {
+  margin-bottom: 0.6rem;
+}
+
+/* ===== Footer Buttons ===== */
+#registerBtn,
+#cancelBtn {
+  margin-top: 1.2rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+#registerBtn {
+  background-color: #4aa3df;
+  color: #ffffff;
+  border: none;
+}
+
+#cancelBtn {
+  margin-left: 0.5rem;
+}
+
+/* =================MODALS */
