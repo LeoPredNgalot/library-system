@@ -322,6 +322,7 @@
       const res = await fetch('/api/dashboard/stats');
       if (!res.ok) return;
       const data = await res.json();
+      console.log('Stats data:', data);
       if (data.totalBooks   !== undefined) document.getElementById('statTotalBooks').textContent   = data.totalBooks;
       if (data.borrowed     !== undefined) document.getElementById('statBorrowed').textContent     = data.borrowed;
       if (data.returned     !== undefined) document.getElementById('statReturned').textContent     = data.returned;

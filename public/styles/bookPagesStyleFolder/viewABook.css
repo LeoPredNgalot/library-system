@@ -6,7 +6,7 @@
 }
 
     html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg-deep); color: var(--text-primary); overflow: auto; }
-    .topbar { height: var(--topbar-h); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid var(--border); background: var(--bg-card); position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 0 var(--border); }
+    .topbar { height: var(--topbar-h); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; border-bottom: 1px solid var(--border); background: transparent; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 0 var(--border); }
     .topbar-left { display: flex; flex-direction: column; }
     .topbar-eyebrow { font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.07em; text-transform: uppercase; }
     .topbar-title { font-size: 17px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }

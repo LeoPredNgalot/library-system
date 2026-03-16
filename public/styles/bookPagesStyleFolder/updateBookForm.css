@@ -39,7 +39,7 @@
     .panel-item.danger { color:var(--color-red); }
     .panel-item.danger:hover { background:rgba(248,113,113,0.08); }
     .main{margin-left:0;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-    .topbar { height:var(--topbar-h); display:flex; align-items:center; justify-content:space-between; padding:0 28px; border-bottom:1px solid var(--border); background:var(--bg-sidebar); flex-shrink:0; }
+    .topbar { height:var(--topbar-h); display:flex; align-items:center; justify-content:space-between; padding:0 28px; border-bottom:1px solid var(--border); background:transparent; flex-shrink:0; }
     .topbar-left { display:flex; flex-direction:column; }
     .topbar-eyebrow { font-size:10.5px; color:var(--text-muted); letter-spacing:0.07em; text-transform:uppercase; }
     .topbar-title { font-size:17px; font-weight:700; color:var(--text-primary); letter-spacing:-0.01em; }

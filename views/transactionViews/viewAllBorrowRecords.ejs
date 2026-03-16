@@ -135,9 +135,9 @@
               <td><%= r.lName %></td>
               <td><%= r.grade %></td>
               <td><%= r.section %></td>
-              <td><%= r.borrowDate %></td>
-              <td><%= r.dueDate %></td>
-              <td><%= r.returnDate ?? '—' %></td>
+              <td><%= r.borrowDate ? new Date(r.borrowDate).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—' %></td>
+              <td><%= r.dueDate ? new Date(r.dueDate).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—' %></td>
+              <td><%= r.returnDate ? new Date(r.returnDate).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—' %></td>
               <td>
                 <% const statusClass = {'BORROWED':'badge-borrowed','RETURNED':'badge-returned','LOST':'badge-lost','DAMAGED':'badge-damaged','OVERDUE':'badge-overdue'}[r.displayStatus]||''; %>
                 <!-- <td><%= r.borrowStatus %></td> -->

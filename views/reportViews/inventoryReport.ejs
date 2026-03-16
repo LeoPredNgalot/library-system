@@ -113,7 +113,7 @@
                 <td><%= book.book_location || '—' %></td>
                 <td><%= book.publisher || '—' %></td>
                 <td><span class="cell-mono"><%= book.isbn || '—' %></span></td>
-                <td><span class="cell-mono"><%= book.date_added %></span></td>
+                <td><span class="cell-mono"><%= book.date_added ? new Date(book.date_added).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—' %></span></td>
                 <td>
                   <button class="btn-view view-book-btn" data-id="<%= book.id %>">
                     <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -283,7 +283,7 @@
     document.getElementById('md-publisher').textContent = book.publisher      || '—';
     document.getElementById('md-location').textContent  = book.book_location  || '—';
     document.getElementById('md-isbn').textContent      = book.isbn           || '—';
-    document.getElementById('md-date').textContent      = book.date_added     || '—';
+   document.getElementById('md-date').textContent = book.date_added ? new Date(book.date_added).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 
     // Copies list
     const list = document.getElementById('modalCopiesList');
