@@ -14,6 +14,45 @@
       --accent-glow:  rgba(8,145,178,0.15);
       --error:        #dc2626;
     }
+    html.dark {
+  --bg-deep:      #010c24;
+  --bg-panel:     #000e26;
+  --bg-card:      #001433;
+  --border:       rgba(127,255,217,0.09);
+  --border-focus: #7fffd9;
+  --text-primary: #e8f4ff;
+  --text-muted:   #3d6080;
+  --text-label:   #7a9fc0;
+  --accent:       #7fffd9;
+  --accent-hover: #5ee8c2;
+  --accent-glow:  rgba(127,255,217,0.15);
+  --error:        #f87171;
+}
+
+html.dark body::before {
+  background-image:
+    linear-gradient(rgba(127,255,217,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(127,255,217,0.025) 1px, transparent 1px);
+}
+
+html.dark .orb-1 { background: radial-gradient(circle, #0e4a6e 0%, transparent 70%); }
+html.dark .orb-2 { background: radial-gradient(circle, #001c3a 0%, transparent 70%); }
+
+html.dark .card {
+  box-shadow: 0 0 0 1px rgba(127,255,217,0.08),
+              0 24px 64px rgba(0,0,0,0.5),
+              inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+html.dark input[type="text"],
+html.dark input[type="password"] {
+  color-scheme: dark;
+}
+
+html.dark .btn-login {
+  background: linear-gradient(135deg, #0e4a6e, #7fffd9);
+  box-shadow: 0 4px 20px rgba(127,255,217,0.15);
+}
 
     html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg-deep); color: var(--text-primary); overflow: hidden; }
     body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(34,211,238,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px); background-size: 48px 48px; animation: gridDrift 30s linear infinite; pointer-events: none; z-index: 0; }

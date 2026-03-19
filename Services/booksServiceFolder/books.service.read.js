@@ -73,9 +73,8 @@ async function checkIsbn(book) {
     const query = `SELECT EXISTS 
     (SELECT 1 FROM books WHERE isbn = ? ) AS existing_isbn`;
 
-    const [result] = await pool.query(query, [isbn]); // mysql2 requires the 2nd arg as arr
+    const [result] = await pool.query(query, [isbn]);
 
-    // mysql returns [ rows, fields ]   that's why we have rows as const
     if (result[0].existing_isbn === 1) {
       return true;
     } else {
@@ -89,8 +88,6 @@ async function checkIsbn(book) {
 
 async function checkTitle(book) {
   //
-  // extractProperty, createQuery, catchResult, checkQueryResult,
-
   try {
     const title = book.bookTitle;
 
@@ -105,8 +102,6 @@ async function checkTitle(book) {
     } else {
     }
   } catch (error) {
-    // AN ERROR MESSAGE
-
     console.log(
       `${"\n"}---------CHECKTITLE()_catch(), ERROR MESSAGE: ${error.message}`,
     );
@@ -124,7 +119,6 @@ async function getBookForUpdate(id) {
   const query = `SELECT * FROM books WHERE id = ?`;
   const [rows] = await pool.query(query, [id]);
 
-  //CHECKING IF THE BOOK EXIST FIRST
   if (rows.length === 0) {
     throw new Error("Book not found");
   }
@@ -132,20 +126,16 @@ async function getBookForUpdate(id) {
   const bookInfo = rows[0];
   const bookId = bookInfo.id;
 
-  // RETRIEVING THE BOOK COPIES
   const bookCopiesQuery = `SELECT * FROM book_copies WHERE book_id = ?`;
   const [copies] = await pool.query(bookCopiesQuery, [bookId]);
 
-  // ----- LOGGING
   (() => {
     console.log("\n\n\n");
-    console.log(
-      `-----BOOK.SERVICE, GET_BOOK_FOR_UPDATE(): BOOK INFO AND COPIES`,
-    );
-
+    console.log(`-----BOOK.SERVICE, GET_BOOK_FOR_UPDATE(): BOOK INFO AND COPIES`);
     console.log(bookInfo);
     console.log(copies);
   })();
+
   return { book: bookInfo, bookIdArray: copies };
 }
 
@@ -160,19 +150,121 @@ async function getTheBook(bookId) {
     if (rows.length === 0) {
       throw new Error("Book not found");
     }
-    const existingBook = rows[0];
-    return existingBook;
+    return rows[0];
   } catch (error) {
     console.log(`ERROR GETTING THE BOOK`);
   }
 }
 
+
+
+
+
+// ══════════════════════════════════════════════════════
+// UPDATED: Genre-based recommendation algorithm
+//
+// Algorithm:
+//   Step 1 — Find the most borrowed genre overall
+//            by counting borrow_records joined through
+//            book_copies → books
+//   Step 2 — Return books from that genre ordered by
+//            borrowed_count DESC
+//   Fallback — If no borrow history exists yet,
+//              return top books by borrowed_count
+//
+// ══════════════════════════════════════════════════════
 async function getRecommendedBooks() {
-  const query = `
-    SELECT *
+  // Step 1 — Find the most borrowed genre
+  const genreQuery = `
+    SELECT
+      b.genre,
+      COUNT(br.id) AS borrow_count
+    FROM borrow_records br
+    INNER JOIN book_copies bc ON br.copy_id = bc.copy_id
+    INNER JOIN books b ON bc.book_id = b.id
+    WHERE b.genre IS NOT NULL
+      AND TRIM(b.genre) != ''
+    GROUP BY b.genre
+    ORDER BY borrow_count DESC
+    LIMIT 1
+  `;
+
+  const [genreRows] = await pool.query(genreQuery);
+  const topGenre = genreRows[0];
+
+  // 🔁 Fallback — no borrow history yet
+  if (!topGenre) {
+    const fallbackQuery = `
+      SELECT
+        id,
+        title,
+        author,
+        genre,
+        book_photo_file_path,
+        available_count,
+        borrowed_count
+      FROM books
+      ORDER BY borrowed_count DESC
+      LIMIT 10
+    `;
+
+    const [books] = await pool.query(fallbackQuery);
+
+    return {
+      genre: null,
+      books
+    };
+  }
+
+  // Step 2 — Get books from the most borrowed genre
+  const booksQuery = `
+    SELECT
+      id,
+      title,
+      author,
+      genre,
+      book_photo_file_path,
+      available_count,
+      borrowed_count
     FROM books
+    WHERE LOWER(TRIM(genre)) = LOWER(TRIM(?))
     ORDER BY borrowed_count DESC
     LIMIT 10
+  `;
+
+  const [books] = await pool.query(booksQuery, [topGenre.genre]);
+
+  return {
+    genre: topGenre.genre,
+    books
+  };
+}
+
+
+
+
+
+
+// ══════════════════════════════════════════════════════
+// NEW: Most Borrowed Books
+//
+// Returns top 50 books ordered by borrowed_count.
+// The frontend filters by genre client-side so no
+// extra API calls are needed when switching genre tabs.
+// ══════════════════════════════════════════════════════
+async function getMostBorrowedBooks() {
+  const query = `
+    SELECT
+      id,
+      title,
+      author,
+      genre,
+      book_photo_file_path,
+      available_count,
+      borrowed_count
+    FROM books
+    ORDER BY borrowed_count DESC
+    LIMIT 50
   `;
 
   const [rows] = await pool.query(query);
@@ -181,14 +273,13 @@ async function getRecommendedBooks() {
 
 module.exports = {
   getAllBooksFromDb,
-
   searchBooks,
-
   checkIsbn,
   checkTitle,
-
   getBookForUpdate,
-
   getTheBook,
   getRecommendedBooks,
+  getMostBorrowedBooks,
 };
+
+
