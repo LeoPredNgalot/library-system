@@ -66,7 +66,7 @@ if (!gradeSelect || !sectionSelect) {
       sectionSelect.appendChild(option);
     });
   });
-});
+};
 
 // ------------------------------
 // CANCEL BUTTON

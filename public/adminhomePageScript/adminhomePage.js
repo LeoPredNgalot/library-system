@@ -17,10 +17,12 @@ const navItems = ['home', 'books', 'users'];
       const el = document.getElementById('nav-' + n);
       if (el) el.classList.remove('active');
     });
-    document.getElementById('transBtn').classList.remove('active');
+    const transBtn = document.getElementById('transBtn');
+    if (transBtn) transBtn.classList.remove('active');
     // Update topbar title
     const titles = { home: 'Dashboard', books: 'Books', users: 'Users' };
-    document.getElementById('pageTitle').textContent = titles[id] || 'Dashboard';
+    const pageTitle = document.getElementById('pageTitle');
+    if (pageTitle) pageTitle.textContent = titles[id] || 'Dashboard';
   }
 
   function setActiveSub(sub) {
@@ -32,9 +34,11 @@ const navItems = ['home', 'books', 'users'];
       const el = document.getElementById('nav-' + n);
       if (el) el.classList.toggle('active', n === sub);
     });
-    document.getElementById('transBtn').classList.add('active');
+    const transBtn = document.getElementById('transBtn');
+    if (transBtn) transBtn.classList.add('active');
     const titles = { borrow: 'Borrow', reserve: 'Reservations' };
-    document.getElementById('pageTitle').textContent = titles[sub] || 'Transactions';
+    const pageTitle = document.getElementById('pageTitle');
+    if (pageTitle) pageTitle.textContent = titles[sub] || 'Transactions';
   }
 
   // Transactions submenu toggle
@@ -42,6 +46,7 @@ const navItems = ['home', 'books', 'users'];
     const submenu = document.getElementById('transSubmenu');
     const chevron = document.getElementById('transChevron');
     const btn     = document.getElementById('transBtn');
+    if (!submenu || !chevron || !btn) return;
     const isOpen  = submenu.classList.contains('open');
     submenu.classList.toggle('open', !isOpen);
     btn.classList.toggle('open', !isOpen);
@@ -49,20 +54,26 @@ const navItems = ['home', 'books', 'users'];
   }
 
   // Profile dropdown
-  document.getElementById('profileBtn').addEventListener('click', function(e) {
-    e.stopPropagation();
-    const panel   = document.getElementById('profilePanel');
-    const chevron = document.getElementById('profileChevron');
-    const isOpen  = panel.classList.contains('open');
-    panel.classList.toggle('open', !isOpen);
-    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
-  });
+  const profileBtn = document.getElementById('profileBtn');
+  if (profileBtn) {
+    profileBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const panel   = document.getElementById('profilePanel');
+      const chevron = document.getElementById('profileChevron');
+      if (!panel || !chevron) return;
+      const isOpen  = panel.classList.contains('open');
+      panel.classList.toggle('open', !isOpen);
+      chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    });
+  }
 
   // Close on outside click
   document.addEventListener('click', function(e) {
-      if (!e.target.closest('#profileDropdownWrap')) {
-      document.getElementById('profilePanel').classList.remove('open');
-      document.getElementById('profileChevron').style.transform = '';
+    if (!e.target.closest('#profileDropdownWrap')) {
+      const panel   = document.getElementById('profilePanel');
+      const chevron = document.getElementById('profileChevron');
+      if (panel)   panel.classList.remove('open');
+      if (chevron) chevron.style.transform = '';
     }
   });
 
@@ -90,7 +101,6 @@ const navItems = ['home', 'books', 'users'];
   var calYear, calMonth;
   var today = new Date();
 
-
   function renderCalendar(year, month) {
     calYear = year; calMonth = month;
     var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -117,7 +127,6 @@ const navItems = ['home', 'books', 'users'];
       if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
         el.classList.add('today');
       }
-
       el.textContent = day;
       container.appendChild(el);
     }
@@ -154,12 +163,19 @@ async function loadDashboardStats() {
     const data = await res.json();
 
     if (data.success) {
-      document.getElementById('stat-totalBooks').textContent   = data.totalBooks;
-      document.getElementById('stat-borrowed').textContent     = data.borrowed;
-      document.getElementById('stat-returned').textContent     = data.returned;
-      document.getElementById('stat-overdue').textContent      = data.overdue;
-      document.getElementById('stat-totalUsers').textContent   = data.totalUsers;
-      document.getElementById('stat-reservations').textContent = data.reservations;
+      const totalBooks   = document.getElementById('stat-totalBooks');
+      const borrowed     = document.getElementById('stat-borrowed');
+      const returned     = document.getElementById('stat-returned');
+      const overdue      = document.getElementById('stat-overdue');
+      const totalUsers   = document.getElementById('stat-totalUsers');
+      const reservations = document.getElementById('stat-reservations');
+
+      if (totalBooks)   totalBooks.textContent   = data.totalBooks;
+      if (borrowed)     borrowed.textContent     = data.borrowed;
+      if (returned)     returned.textContent     = data.returned;
+      if (overdue)      overdue.textContent      = data.overdue;
+      if (totalUsers)   totalUsers.textContent   = data.totalUsers;
+      if (reservations) reservations.textContent = data.reservations;
     }
   } catch (err) {
     console.error('Failed to load dashboard stats:', err);

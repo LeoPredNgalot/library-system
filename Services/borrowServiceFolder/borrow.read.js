@@ -53,43 +53,42 @@ async function checkBookAvailability(bookCopyId) {
     return { available: false };
   } catch (error) {
     console.log(`ERROR CHECKING BOOK AVAILABILITY: ${error.message}`);
-
     throw error;
   }
 }
 
-async function getAllBorrowRecords() {
-  const sql = `
-  SELECT
-   br.id             AS borrowId, 
-    b.title           AS bookTitle,
-    bc.copy_id        AS copyID,
-    s.first_name      AS fName,
-    s.last_name       AS lName,
-    s.grade           AS grade,
-    s.section         AS section,
+// async function getAllBorrowRecords() {
+//   const sql = `
+//   SELECT
+//    br.id             AS borrowId,
+//     b.title           AS bookTitle,
+//     bc.copy_id        AS copyID,
+//     s.first_name      AS fName,
+//     s.last_name       AS lName,
+//     s.grade           AS grade,
+//     s.section         AS section,
 
-    br.borrow_date    AS borrowDate,
-    br.due_date       AS dueDate,
-    br.return_date    AS returnDate,
+//     br.borrow_date    AS borrowDate,
+//     br.due_date       AS dueDate,
+//     br.return_date    AS returnDate,
 
-    br.status         AS borrowStatus,
-    br.fine_amount    AS fineAmount,
-    br.payment_status AS paymentStatus
+//     br.status         AS borrowStatus,
+//     br.fine_amount    AS fineAmount,
+//     br.payment_status AS paymentStatus
 
-  FROM borrow_records br
-  INNER JOIN students s
-    ON br.student_id = s.student_id
-  INNER JOIN book_copies bc
-    ON br.copy_id = bc.copy_id
-  INNER JOIN books b
-    ON bc.book_id = b.id
-  ORDER BY br.borrow_date DESC
-`;
+//   FROM borrow_records br
+//   INNER JOIN students s
+//     ON br.student_id = s.student_id
+//   INNER JOIN book_copies bc
+//     ON br.copy_id = bc.copy_id
+//   INNER JOIN books b
+//     ON bc.book_id = b.id
+//   ORDER BY br.borrow_date DESC
+// `;
 
-  const [rows] = await pool.execute(sql);
-  return rows;
-}
+//   const [rows] = await pool.execute(sql);
+//   return rows;
+// }
 
 async function getBorrowRecordsPage(filters) {
   const {
@@ -113,7 +112,11 @@ async function getBorrowRecordsPage(filters) {
   // VIEW FILTER
   // --------------------------
   if (view === "borrowed") {
-    where.push(`br.status = 'BORROWED'`);
+    where.push(`
+    br.status = 'BORROWED'
+    AND br.return_date IS NULL
+    AND br.due_date >= CURRENT_DATE
+  `);
   }
 
   if (view === "returned") {
@@ -129,7 +132,11 @@ async function getBorrowRecordsPage(filters) {
   }
 
   if (view === "overdue") {
-    where.push(`br.status = 'BORROWED' AND br.due_date < NOW()`);
+    where.push(`
+    br.status = 'BORROWED'
+    AND br.return_date IS NULL
+    AND br.due_date < CURRENT_DATE
+  `);
   }
 
   // --------------------------
@@ -205,8 +212,24 @@ async function getBorrowRecordsPage(filters) {
       br.due_date       AS dueDate,
       br.return_date    AS returnDate,
 
-      br.status         AS borrowStatus,
-      br.fine_amount    AS fineAmount,
+      CASE
+        WHEN br.status = 'BORROWED'
+             AND br.return_date IS NULL
+             AND br.due_date < CURRENT_DATE
+          THEN 'OVERDUE'
+        ELSE br.status
+      END AS displayStatus,
+
+      br.status AS borrowStatus,
+
+      CASE
+        WHEN br.status = 'BORROWED'
+             AND br.return_date IS NULL
+             AND br.due_date < CURRENT_DATE
+          THEN DATEDIFF(CURRENT_DATE, br.due_date) * 10
+        ELSE br.fine_amount
+      END AS fineAmount,
+
       br.payment_status AS paymentStatus
     FROM borrow_records br
     INNER JOIN students s ON br.student_id = s.student_id
@@ -230,10 +253,11 @@ async function getBorrowRecordsPage(filters) {
     },
   };
 }
+
 module.exports = {
   checkStudentId,
   checkBookCopyId,
   checkBookAvailability,
-  getAllBorrowRecords,
+  // getAllBorrowRecords,
   getBorrowRecordsPage,
 };

@@ -84,17 +84,20 @@ async function borrowBook(req, res) {
 async function viewBorrowRecords(req, res) {
   try {
     const {
-      q = "",
-      view = "actionable",
-      payment = "all",
-      overdue = "0",
-      page = "1",
+      q       = "",
+      view    = "",
+      payment = "",
+      grade   = "",
+      section = "",
+      page    = "1",
     } = req.query;
 
     const result = await getBorrowRecordsPage({
       q,
       view,
       payment,
+      grade,
+      section,
       page,
       pageSize: 10,
     });
@@ -102,7 +105,7 @@ async function viewBorrowRecords(req, res) {
     return res.render("transactionViews/viewAllBorrowRecords", {
       records: result.rows,
       pagination: result.pagination,
-      filters: { q, view, payment },
+      filters: { q, view, payment, grade, section },
     });
   } catch (error) {
     console.log("viewBorrowRecords ERROR:", error.message);
@@ -154,7 +157,8 @@ async function sendReservationPage(req, res) {
   try {
     const {
       search = "",
-      status = "",
+      status = "all",
+      grade  = "",
       page = "1",
       pageSize = "10",
     } = req.query;
@@ -163,6 +167,7 @@ async function sendReservationPage(req, res) {
     const result = await getReservationsPage({
       search,
       status,
+      grade,
       page: parseInt(page),
       pageSize: parseInt(pageSize),
     });
@@ -174,6 +179,7 @@ async function sendReservationPage(req, res) {
       filters: {
         search,
         status,
+        grade,
         pageSize,
       },
       pagination: result.pagination,
@@ -230,7 +236,6 @@ async function reserveBook(req, res) {
 async function cancelReservation(req, res) {
   try {
     const result = await cancelReservationService(req.params.id);
-
     return res.json({
       success: true,
       message: result?.message || "Reservation cancelled successfully.",
@@ -247,7 +252,6 @@ async function cancelReservation(req, res) {
 async function fulfillReservation(req, res) {
   try {
     await fulfillReservationService(req.params.id);
-
     return res.json({
       success: true,
       message: "Fulfill request received",

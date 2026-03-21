@@ -206,7 +206,6 @@ document.addEventListener('click', async e => {
     const data = await res.json();
     if (data.success) {
       showToast('✓ ' + (data.message || 'Reservation removed.'));
-      // Fade out and remove the row without a full reload
       const row = removeBtn.closest('tr');
       row.style.transition = 'opacity 0.3s ease';
       row.style.opacity = '0';
@@ -296,20 +295,6 @@ document.getElementById('confirmFulfillBtn')?.addEventListener('click', async ()
     confirmBtn.innerHTML = `<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Confirm &amp; Borrow`;
   }
 });
-
-// ── Client-side filter ──
-document.getElementById('searchInput')?.addEventListener('input', filterTable);
-document.getElementById('statusFilter')?.addEventListener('change', filterTable);
-function filterTable() {
-  const q  = document.getElementById('searchInput').value.toLowerCase();
-  const st = document.getElementById('statusFilter').value.toLowerCase();
-  document.querySelectorAll('tbody tr:not(.no-data-row)').forEach(row => {
-    const text  = row.textContent.toLowerCase();
-    const badge = row.querySelector('.badge');
-    const rowSt = badge ? badge.textContent.toLowerCase().trim() : '';
-    row.style.display = (!q || text.includes(q)) && (!st || rowSt === st) ? '' : 'none';
-  });
-}
 
 // ── Close dropdowns outside ──
 document.addEventListener('click', e => {

@@ -1,10 +1,3 @@
-//
-//
-//
-//
-//
-//
-//
 const { pool } = require("../../DB/pool");
 
 async function resetAllReservationsService() {
@@ -189,29 +182,7 @@ async function resetAllBorrowRecordsService() {
     }
 
     // ---------------------------------
-    // 4. Optional safety check for lost or damaged records
-    // ---------------------------------
-    const [problemRecordRows] = await connection.query(
-      `
-      SELECT COUNT(*) AS count
-      FROM borrow_records
-      WHERE status IN ('LOST', 'DAMAGED')
-      `,
-    );
-
-    const problemRecordCount = problemRecordRows[0].count;
-
-    if (problemRecordCount > 0) {
-      await connection.rollback();
-      return {
-        success: false,
-        message:
-          "Cannot reset borrow records because there are still LOST or DAMAGED borrow records that should be reviewed first.",
-      };
-    }
-
-    // ---------------------------------
-    // 5. Delete all borrow records
+    // 4. Delete all borrow records (LOST/DAMAGED records are also deleted)
     // ---------------------------------
     const [deleteResult] = await connection.query(
       `
@@ -220,7 +191,7 @@ async function resetAllBorrowRecordsService() {
     );
 
     // ---------------------------------
-    // 6. Reset AUTO_INCREMENT
+    // 5. Reset AUTO_INCREMENT
     // ---------------------------------
     await connection.query(`
       ALTER TABLE borrow_records AUTO_INCREMENT = 1
@@ -298,29 +269,7 @@ async function resetAllStudentsService() {
     }
 
     // ---------------------------------
-    // 3. Check unresolved LOST / DAMAGED borrow records
-    // ---------------------------------
-    const [problemBorrowRows] = await connection.query(
-      `
-      SELECT COUNT(*) AS count
-      FROM borrow_records
-      WHERE status IN ('LOST', 'DAMAGED')
-      `,
-    );
-
-    const problemBorrowCount = problemBorrowRows[0].count;
-
-    if (problemBorrowCount > 0) {
-      await connection.rollback();
-      return {
-        success: false,
-        message:
-          "Cannot reset student records because there are still LOST or DAMAGED borrow records.",
-      };
-    }
-
-    // ---------------------------------
-    // 4. Check active reservations
+    // 3. Check active reservations
     // ---------------------------------
     const [activeReservationRows] = await connection.query(
       `
@@ -343,7 +292,7 @@ async function resetAllStudentsService() {
     }
 
     // ---------------------------------
-    // 5. Delete all students
+    // 4. Delete all students
     // ---------------------------------
     const [deleteResult] = await connection.query(
       `
@@ -352,7 +301,7 @@ async function resetAllStudentsService() {
     );
 
     // ---------------------------------
-    // 6. Reset AUTO_INCREMENT
+    // 5. Reset AUTO_INCREMENT
     // ---------------------------------
     await connection.query(
       `

@@ -1,67 +1,85 @@
+//
+// Services/dashboardServiceFolder/dashboard.service.js
+//
+
 const { pool } = require(`../../DB/pool`);
 
 async function getDashboardStats() {
-  const [bookRows] = await pool.query(`
+  const query = `
     SELECT
-      COUNT(*)                             AS totalBooks,
-      SUM(available_count)                 AS availableBooks,
-      SUM(total_copies - available_count)  AS borrowedBooks
-    FROM books
-  `);
+      (SELECT COUNT(*) FROM books) AS totalBooks,
 
-  const [txnRows] = await pool.query(`
-    SELECT
-      SUM(CASE WHEN status = 'BORROWED' THEN 1 ELSE 0 END) AS borrowed,
-      SUM(CASE WHEN status = 'RETURNED'
-               AND MONTH(return_date) = MONTH(CURDATE())
-               AND YEAR(return_date)  = YEAR(CURDATE())  THEN 1 ELSE 0 END) AS returned,
-      SUM(CASE WHEN status = 'BORROWED' AND due_date < CURDATE() THEN 1 ELSE 0 END) AS overdue
-    FROM borrow_records
-  `);
+      (SELECT COUNT(*) FROM borrow_records
+       WHERE status = 'BORROWED'
+         AND return_date IS NULL
+         AND due_date >= CURRENT_DATE) AS borrowed,
 
-  // ✅ correct table: students
-  const [userRows] = await pool.query(`
-    SELECT COUNT(*) AS totalUsers FROM students
-  `);
+      (SELECT COUNT(*) FROM borrow_records
+       WHERE status = 'RETURNED') AS returned,
 
-  // ✅ correct statuses: waiting + pending
-  const [resRows] = await pool.query(`
-    SELECT COUNT(*) AS reservations
-    FROM reservations
-    WHERE status IN ('waiting', 'pending')
-  `);
+      (SELECT COUNT(*) FROM borrow_records
+       WHERE status = 'BORROWED'
+         AND return_date IS NULL
+         AND due_date < CURRENT_DATE) AS overdue,
 
-  return {
-    totalBooks:   Number(bookRows[0].totalBooks   || 0),
-    borrowed:     Number(txnRows[0].borrowed      || 0),
-    returned:     Number(txnRows[0].returned      || 0),
-    overdue:      Number(txnRows[0].overdue       || 0),
-    totalUsers:   Number(userRows[0].totalUsers   || 0),
-    reservations: Number(resRows[0].reservations  || 0),
-  };
+      (SELECT COUNT(*) FROM students) AS totalUsers,
+
+      (SELECT COUNT(*) FROM reservations
+       WHERE status IN ('WAITING', 'PENDING')) AS reservations
+  `;
+  const [[row]] = await pool.query(query);
+  return row;
 }
 
-async function getRecentTransactions(limit = 8) {
-  const [rows] = await pool.query(`
+async function getRecentTransactions() {
+  // Latest 5 borrow records
+  const borrowSql = `
     SELECT
-      CONCAT(s.first_name, ' ', s.last_name) AS borrowerName,
-      b.title                                AS bookTitle,
-      br.borrow_date                         AS date,
-      br.status
+      'borrow'                                    AS type,
+      br.id                                       AS id,
+      b.title                                     AS bookTitle,
+      CONCAT(s.first_name, ' ', s.last_name)      AS studentName,
+      CASE
+        WHEN br.status = 'BORROWED'
+             AND br.return_date IS NULL
+             AND br.due_date < CURRENT_DATE
+          THEN 'OVERDUE'
+        ELSE br.status
+      END                                         AS status,
+      br.borrow_date                              AS date
     FROM borrow_records br
-    JOIN students    s  ON br.student_id = s.student_id
-    JOIN book_copies bc ON br.copy_id    = bc.copy_id
-    JOIN books       b  ON bc.book_id    = b.id
+    INNER JOIN students s  ON br.student_id = s.student_id
+    INNER JOIN book_copies bc ON br.copy_id  = bc.copy_id
+    INNER JOIN books b        ON bc.book_id  = b.id
     ORDER BY br.borrow_date DESC
-    LIMIT ?
-  `, [limit]);
+    LIMIT 5
+  `;
 
-  return rows.map(r => ({
-    borrowerName: r.borrowerName,
-    bookTitle:    r.bookTitle,
-    date:         r.date,
-    status:       r.status ? r.status.toLowerCase() : 'borrowed',
-  }));
+  // Latest 5 reservations
+  const reserveSql = `
+    SELECT
+      'reservation'                               AS type,
+      r.reservation_id                            AS id,
+      b.title                                     AS bookTitle,
+      CONCAT(s.first_name, ' ', s.last_name)      AS studentName,
+      r.status                                    AS status,
+      r.reservation_date                          AS date
+    FROM reservations r
+    INNER JOIN students s ON r.student_id = s.student_id
+    INNER JOIN books b    ON r.book_id    = b.id
+    ORDER BY r.reservation_date DESC
+    LIMIT 5
+  `;
+
+  const [[borrows], [reservations]] = await Promise.all([
+    pool.query(borrowSql),
+    pool.query(reserveSql),
+  ]);
+
+  return { borrows, reservations };
 }
 
-module.exports = { getDashboardStats, getRecentTransactions };
+module.exports = {
+  getDashboardStats,
+  getRecentTransactions,
+};

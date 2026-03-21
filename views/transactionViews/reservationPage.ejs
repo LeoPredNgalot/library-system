@@ -6,9 +6,27 @@
   <title>Reservations — Voctech Library</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-   <link rel="stylesheet" href="../styles/transactionPagesStyleFolder/reservationPage.css">
- 
-  <!-- Embed mode: hide sidebar when loaded inside iframe -->
+  <link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+  <link rel="stylesheet" href="../styles/transactionPagesStyleFolder/reservationPage.css">
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
   <script>
     if (new URLSearchParams(window.location.search).get('embed') === 'true') {
       document.documentElement.classList.add('embedded');
@@ -21,102 +39,71 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-    </div>
-    <div>
-      <div class="logo-name">Voctech Library</div>
-      <div class="logo-sub">Management System</div>
-    </div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-label">Main</div>
-    <a href="/librarian/admin/homepage" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      Dashboard
-    </a>
-    <a href="/book/get-all-books?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-      Books
-    </a>
-    <a href="/user/view-all-users?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-      Students
-    </a>
-    <a href="/librarian/view-all-librarians?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      Librarians
-    </a>
-    <div class="nav-label">Transactions</div>
-    <a class="nav-link" id="transBtn" onclick="toggleTrans();return false;">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      Transactions
-      <svg class="nav-chevron" id="transChevron" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </a>
-    <div class="nav-submenu open" id="transSubmenu">
-      <a href="/transaction/borrow?embed=true" class="nav-link">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        Borrow
-      </a>
-      <a href="/transaction/reservation?embed=true" class="nav-link active">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-        Reservations
-      </a>
-    </div>
-  </nav>
-  <div class="sidebar-footer" id="profileWrap">
-    <button class="profile-btn" onclick="toggleProfile()">
-      <div class="avatar">AD</div>
-      <div><div class="profile-name">Administrator</div><div class="profile-role">Admin</div></div>
-      <svg class="profile-chevron" id="profileChevron" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </button>
-    <div class="profile-panel" id="profilePanel">
-      <div class="profile-panel-header"><p>Administrator</p><small>Admin Account</small></div>
-      <a class="panel-item danger" href="/librarian/logout">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        Sign Out
-      </a>
-    </div>
-  </div>
-</aside>
+
 
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-    
       <span class="topbar-title">Reservations</span>
     </div>
-    <button type="button" class="topbar-btn" id="openModalBtn">
-      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Reservation
-    </button>
+    
   </div>
 
   <div class="page-body">
+
+     <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+      <button type="button" class="topbar-btn" id="openModalBtn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Reservation
+      </button>
+    </div>
     <div class="table-card">
 
-      <!-- Filter bar -->
-      <div class="filter-bar">
-        <div class="filter-search">
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" id="searchInput" class="filter-input" placeholder="Search student / book title…" />
+      <!-- ══ FILTER BAR ══ -->
+      <form method="GET" action="/transaction/reservation">
+        <div class="filter-bar">
+
+          <div class="filter-search">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+            <input
+              type="text"
+              name="search"
+              id="searchInput"
+              class="filter-input"
+              placeholder="Search student / book title…"
+              value="<%= filters?.search || '' %>"
+            />
+          </div>
+
+          <div class="select-wrap">
+            <select name="status" id="statusFilter" class="filter-select">
+              <option value="all"       <%= filters?.status === 'all'       ? 'selected' : '' %>>All Status</option>
+              <option value="waiting"   <%= filters?.status === 'waiting'   ? 'selected' : '' %>>Waiting</option>
+              <option value="pending"   <%= filters?.status === 'pending'   ? 'selected' : '' %>>Pending</option>
+              <option value="fulfilled" <%= filters?.status === 'fulfilled' ? 'selected' : '' %>>Fulfilled</option>
+              <option value="expired"   <%= filters?.status === 'expired'   ? 'selected' : '' %>>Expired</option>
+              <option value="cancelled" <%= filters?.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            </select>
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+
+          <div class="select-wrap">
+            <select name="grade" id="gradeFilter" class="filter-select">
+              <option value=""   <%= !filters?.grade           ? 'selected' : '' %>>All Grades</option>
+              <option value="11" <%= filters?.grade === '11'   ? 'selected' : '' %>>Grade 11</option>
+              <option value="12" <%= filters?.grade === '12'   ? 'selected' : '' %>>Grade 12</option>
+            </select>
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+
+          <button type="submit" class="filter-btn">Apply</button>
+
         </div>
-        <div class="select-wrap">
-          <select id="statusFilter" class="filter-select">
-            <option value="">All Status</option>
-            <option value="waiting">Waiting</option>
-            <option value="pending">Pending</option>
-            <option value="fulfilled">Fulfilled</option>
-            <option value="expired">Expired</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
+      </form>
 
       <!-- Table -->
       <div style="overflow-x:auto;">
@@ -177,9 +164,6 @@
                         Fulfill
                       </button>
                     <% } %>
-                    <% if (st === 'fulfilled' || st === 'expired' || st === 'cancelled') { %>
-                      
-                    <% } %>
                   </div>
                 </td>
               </tr>
@@ -190,9 +174,47 @@
       </div>
 
       <!-- Footer count -->
-      <div style="padding:14px 20px;border-top:1px solid var(--border);">
-        <span style="font-size:12px;color:var(--text-muted);"><span style="color:var(--text-secondary);font-weight:600;"><%= reservations ? reservations.length : 0 %></span> total reservations</span>
+    
+
+      <!-- ══ PAGINATION ══ -->
+      <% if (pagination ) { %>
+      <div class="pagination">
+        <div class="page-info">
+          Showing <span><%= ((pagination.currentPage - 1) * pagination.pageSize) + 1 %>–<%= Math.min(pagination.currentPage * pagination.pageSize, pagination.total) %></span>
+          of <span><%= pagination.total %></span> results
+        </div>
+
+        <div class="pg-btns">
+
+          <!-- PREV -->
+          <button class="pg-btn" <%= !pagination.hasPrev ? 'disabled' : '' %>
+            onclick="location.href='/transaction/reservation?page=<%= pagination.currentPage - 1 %>&search=<%= encodeURIComponent(filters.search || '') %>&status=<%= encodeURIComponent(filters.status || 'all') %>&grade=<%= encodeURIComponent(filters.grade || '') %>'">
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Prev
+          </button>
+
+          <!-- PAGE NUMBERS -->
+          <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+            <a
+              class="pg-btn <%= i === pagination.currentPage ? 'active' : '' %>"
+              href="/transaction/reservation?page=<%= i %>&search=<%= encodeURIComponent(filters.search || '') %>&status=<%= encodeURIComponent(filters.status || 'all') %>&grade=<%= encodeURIComponent(filters.grade || '') %>"
+            ><%= i %></a>
+          <% } %>
+
+          <!-- NEXT -->
+          <button class="pg-btn" <%= !pagination.hasNext ? 'disabled' : '' %>
+            onclick="location.href='/transaction/reservation?page=<%= pagination.currentPage + 1 %>&search=<%= encodeURIComponent(filters.search || '') %>&status=<%= encodeURIComponent(filters.status || 'all') %>&grade=<%= encodeURIComponent(filters.grade || '') %>'">
+            Next
+            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+
+        </div>
       </div>
+      <% } %>
 
     </div>
   </div>
@@ -209,7 +231,7 @@
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
       </div>
       <div>
-        <div class="modal-head-title">Add Reservation</div>
+        <div class="modal-head-title">Reservation</div>
         <div class="modal-head-sub">Reserve a book for a student.</div>
       </div>
       <button type="button" class="btn-close" id="closeModalBtn">
@@ -218,7 +240,6 @@
     </div>
     <form id="reserveForm">
       <div class="modal-body">
-        <!-- Student -->
         <div>
           <label class="field-label">Student <span>*</span></label>
           <div class="ac-wrap">
@@ -234,7 +255,6 @@
             <input type="hidden" id="selectedStudentId" name="studentId" />
           </div>
         </div>
-        <!-- Book -->
         <div>
           <label class="field-label">Book <span>*</span></label>
           <div class="ac-wrap">
@@ -267,7 +287,7 @@
 <div class="modal-overlay hidden" id="fulfillPanel">
   <div class="modal-box">
     <div class="modal-head">
-      <div class="modal-icon green">
+      <div class="modal-icon" style="background:rgba(52,211,153,0.12);">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#34d399" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
       </div>
       <div>
@@ -315,8 +335,6 @@
     </div>
   </div>
 </div>
-
-
 
 <script src="../../transactionPagesScript/reservationPage2.js"></script>
 </body>

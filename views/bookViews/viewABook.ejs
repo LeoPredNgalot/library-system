@@ -6,8 +6,28 @@
   <title>View Book — Voctech Library</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles/bookPagesStyleFolder/viewABook.css" />
   
+  <link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+  <link rel="stylesheet" href="/styles/bookPagesStyleFolder/viewABook.css" />
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
 </head>
 
 
@@ -16,7 +36,6 @@
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-left">
-    <span class="topbar-eyebrow">Books</span>
     <span class="topbar-title">Book Details</span>
   </div>
   <button type="button" id="backBtn" class="back-btn">
@@ -195,5 +214,6 @@
 </div>
 
 <script src="/bookPagesScripts/viewABook.js"></script>
+<script src="/toggle/theme.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
   <title>Library Books — Voctech Library</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
+<link rel="stylesheet" href="/styles/togglebutton/theme.css" />
   <link rel="stylesheet" href="/styles/bookPagesStyleFolder/getAllBooks.css" />
 
   <script>
@@ -14,6 +14,26 @@
       document.documentElement.classList.add('embedded');
     }
   </script>
+
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
   <style>
     html.embedded .sidebar { display: none !important; }
     html.embedded .main    { margin-left: 0 !important; }
@@ -29,13 +49,22 @@
       
       <span class="topbar-title">Books</span>
     </div>
-    <a href="/book/add" class="topbar-btn" id="AddBookBtn">
-      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Book
-    </a>
   </div>
 
+
+
   <div class="page-body">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+      
+      <a href="/book/add" class="topbar-btn" id="AddBookBtn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Book
+      </a>
+    </div>
+
     <div class="table-card">
       <div class="filter-bar">
         <div class="filter-search">

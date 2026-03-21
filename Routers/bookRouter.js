@@ -12,38 +12,43 @@ const validateSchema = require("../Middlewares/validateSchema");
 const upload = require("../Middlewares/upload");
 const { bookSchema, bookUpdateSchema } = require("../Schemas/book.schema");
 
-// THIS TO CONVERT EMPTY STRING TO `UNDEFINED`
 const { normalizeBody } = require("../Middlewares/normalizeBody");
 
-// CREATE:  ADD BOOK
+// CREATE: ADD BOOK
 router.get("/add", bookController.sendForm);
-
 router.post(
   "/add",
   upload.single("bookPhoto"),
   normalizeBody,
-  validateSchema.validate(bookSchema), // pwede rani e extract nalang ang func name
+  validateSchema.validate(bookSchema),
   bookController.addNewBook,
 );
 
 // READ: GET ALL BOOKS
 router.get("/get-all-books", bookController.getAllBooks);
 
-// SEARCHING SPECIFIC BOOK THIS ROUTE IS FOR BOOK SEARCH
+// SEARCH
 router.get("/books", bookController.getSearchedBook);
 
 // VIEW A BOOK
 router.get(`/get/viewBook/:id`, bookController.viewBook);
 
-// API: GET BOOK COPIES AS JSON (used by borrow form)
+// API: GET SINGLE BOOK AS JSON
+router.get("/api/:id", bookController.getBookApi);
+
+// API: GET BOOK COPIES AS JSON
 router.get("/api/copies/:id", bookController.getBookCopiesApi);
 
-// RECOMMENDED BOOKS
+// RECOMMENDED BOOKS — genre-based algorithm
+// Returns { genre, books[] }
 router.get("/recommended-books", bookController.getRecommendedBooks);
+
+// MOST BORROWED BOOKS — for dashboard Most Borrowed section
+// Returns flat array ordered by borrowed_count DESC
+router.get("/most-borrowed-books", bookController.getMostBorrowedBooks);
 
 // UPDATE: UPDATE BOOK
 router.get("/update/:id", bookController.sendUpdateForm);
-
 router.patch(
   "/update/:id",
   upload.single("bookPhoto"),

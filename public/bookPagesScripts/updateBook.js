@@ -351,7 +351,10 @@ async function submitUpdate() {
     }
 
     showToast("Book updated successfully!", "success");
-    setTimeout(() => { window.location.href = "/book/get-all-books"; }, 1500);
+    setTimeout(() => {
+  window.parent.navigateTo('books', 'Books', '/book/get-all-books?embed=true');
+}, 1500);
+
 
   } catch (err) {
     if (err instanceof SyntaxError) {
@@ -373,5 +376,16 @@ async function submitUpdate() {
 if (backBtn) {
   backBtn.addEventListener("click", () => {
     window.location.href = "/book/get-all-books";
+  });
+}
+
+
+// -----------------------------------------------
+// CANCEL BUTTON (backBtn2)
+// -----------------------------------------------
+const backBtn2 = document.getElementById("backBtn2");
+if (backBtn2) {
+  backBtn2.addEventListener("click", () => {
+    window.location.reload();
   });
 }

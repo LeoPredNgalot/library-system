@@ -11,13 +11,16 @@ const { removeBookCopy, removeCopies, deleteBookFromDb } = require(
 const { updateBookService } = require(
   `../Services/booksServiceFolder/book.service.update`,
 );
-const { getRecommendedBooks } = require('../Services/booksServiceFolder/books.service.read');
+
+// ── Import both recommended + most borrowed ──
 const {
   getAllBooksFromDb,
   searchBooks,
   checkIsbn,
   checkTitle,
   getBookForUpdate,
+  getRecommendedBooks,
+  getMostBorrowedBooks,
 } = require(`../Services/booksServiceFolder/books.service.read`);
 
 exports.sendForm = (req, res) => {
@@ -61,7 +64,6 @@ exports.sendUpdateForm = async (req, res) => {
 exports.evaluateUpdateForm = async (req, res) => {
   if (req.file) req.body.bookPhotoFilePath = req.file.filename;
 
-  // ✅ DEBUG — shows exactly what the controller receives
   console.log("=== evaluateUpdateForm CALLED ===");
   console.log("req.body keys:", Object.keys(req.body));
   console.log("req.body.newBookCopies:", req.body.newBookCopies);
@@ -69,11 +71,9 @@ exports.evaluateUpdateForm = async (req, res) => {
   try {
     await updateBookService(req.params.id, req.body);
     console.log(`BOOK UPDATED SUCCESSFULLY`);
-    // ✅ explicit 200 status
     return res.status(200).json({ success: true, message: "BOOK UPDATED SUCCESSFULLY" });
   } catch (error) {
     console.log(`EVALUATE UPDATE FORM ERROR:`, error.message);
-    // ✅ always 400 + errorCode so frontend shows the right message
     return res.status(400).json({
       success: false,
       message: error.message,
@@ -118,6 +118,18 @@ exports.viewBook = async (req, res) => {
   }
 };
 
+exports.getBookApi = async (req, res) => {
+  try {
+    const result = await getBookForUpdate(req.params.id);
+    const book = result.book;
+    const bookCopies = result.bookIdArray || [];
+    res.json({ success: true, book, bookCopies });
+  } catch (error) {
+    console.error("GET_BOOK_API ERROR:", error.message);
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
+
 exports.getBookCopiesApi = async (req, res) => {
   try {
     const result = await getBookForUpdate(req.params.id);
@@ -129,12 +141,27 @@ exports.getBookCopiesApi = async (req, res) => {
   }
 };
 
+// ── Recommended Books — genre-based algorithm ──
+// Returns { genre, books[] } — books from the most borrowed genre
 exports.getRecommendedBooks = async (req, res) => {
   try {
-    const books = await getRecommendedBooks();
-    res.json(books);
+    const data = await getRecommendedBooks();
+    res.json(data);
   } catch (error) {
     console.log('GET_RECOMMENDED_BOOKS ERROR:', error.message);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ── Most Borrowed Books — for dashboard Most Borrowed section ──
+// Returns flat array of top 50 books ordered by borrowed_count DESC
+// Frontend filters by genre client-side — no extra API calls per tab
+exports.getMostBorrowedBooks = async (req, res) => {
+  try {
+    const books = await getMostBorrowedBooks();
+    res.json(books);
+  } catch (error) {
+    console.log('GET_MOST_BORROWED_BOOKS ERROR:', error.message);
     res.status(500).json({ success: false, message: error.message });
   }
 };

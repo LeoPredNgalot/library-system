@@ -61,12 +61,10 @@ function clearFieldError(inputEl, errorEl) {
 // SECTION DATA
 // ------------------------------
 const grade11Sections = [
-  "HYDROGEN - ABM", "BORON - COMP. PROG.", "CARBON - CSS", "CARBON - EIM",
-  "HYDROGEN - GAS", "NEON - HUMMS", "CARBON - ILL/ANM", "HELIUM - STEM",
+  "Jupiter", "Mars", "Venus", "Earth",
 ];
 const grade12Sections = [
-  "PEARL - ABM", "AMETHYST - COMP. PROG.", "DIAMOND - CSS", "DIAMOND - EIM",
-  "PEARL - GAS", "EMERALD - HUMMS", "DIAMOND - ILL/ANM", "GOLD - STEM",
+  "Pluto", "Saturn", "Neptune", "Mercury",
 ];
 
 function populateSections(gradeSelectEl, sectionSelectEl, keepSelectedValue = null) {
