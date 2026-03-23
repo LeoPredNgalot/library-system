@@ -1,23 +1,19 @@
-//
-//
-//
-const express = require(`express`);
-const router = express.Router();
+// Routes/reportRoute.js
 
-//****************
-// REQUIRE LOGIN
-//****************
+const express = require(`express`);
+const router  = express.Router();
+
 const { requireLogin } = require("../Middlewares/requireLogin");
 router.use(requireLogin);
 
-
-
-
-
 const reportController = require(`../Controllers/reportController`);
 
-router.get(`/inventory`, reportController.sendInventoryReportPage);
+// Full page render (initial load)
+router.get(`/inventory`,      reportController.sendInventoryReportPage);
 
-router.get(`/dashboard`, reportController.sendDashboardPage);
+// ── NEW: AJAX JSON endpoint for filter/paginate updates ──
+router.get(`/inventory/data`, reportController.getInventoryReportData);
+
+router.get(`/dashboard`,      reportController.sendDashboardPage);
 
 module.exports = router;
