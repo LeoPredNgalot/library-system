@@ -71,7 +71,7 @@ async function getAllReservationsDetails() {
   return rows;
 }
 
-async function getReservationsPage({ page = 1, pageSize = 10, search = "", status = "" } = {}) {
+async function getReservationsPage({ page = 1, pageSize = 10, search = "", status = "all", grade = "" } = {}) {
   const offset = (page - 1) * pageSize;
   const conditions = [];
   const values = [];
@@ -83,10 +83,16 @@ async function getReservationsPage({ page = 1, pageSize = 10, search = "", statu
     countValues.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
 
-  if (status) {
+  if (status && status !== "all") {
     conditions.push(`r.status = ?`);
     values.push(status);
     countValues.push(status);
+  }
+
+  if (grade) {
+    conditions.push(`s.grade = ?`);
+    values.push(grade);
+    countValues.push(grade);
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
@@ -97,6 +103,8 @@ async function getReservationsPage({ page = 1, pageSize = 10, search = "", statu
       b.title AS bookTitle,
       s.student_id AS studentID,
       CONCAT(s.first_name, ' ', s.last_name) AS studentName,
+      s.grade AS grade,
+      s.section AS section,
       bc.copy_id AS copyID,
       r.status AS status,
       r.reservation_date AS reserved_date,
@@ -114,12 +122,9 @@ async function getReservationsPage({ page = 1, pageSize = 10, search = "", statu
   const countQuery = `
     SELECT COUNT(*) AS total
     FROM reservations r
-    INNER JOIN students s
-      ON r.student_id = s.student_id
-    INNER JOIN books b
-      ON r.book_id = b.id
-    LEFT JOIN book_copies bc
-      ON r.book_copy_id = bc.id
+    INNER JOIN students s ON r.student_id = s.student_id
+    INNER JOIN books b ON r.book_id = b.id
+    LEFT JOIN book_copies bc ON r.book_copy_id = bc.id
     ${whereClause}
   `;
 

@@ -6,7 +6,27 @@
   <title>Manage Students — Voctech Library</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
    <link rel="stylesheet" href="/styles/usersStyles/viewAllUsers.css" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles/togglebutton/theme.css" />
+   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
   <!-- Embed mode: hide sidebar when loaded inside iframe -->
   <script>
     if (new URLSearchParams(window.location.search).get('embed') === 'true') {
@@ -21,63 +41,7 @@
 </head>
 <body>
 
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-    </div>
-    <div><div class="logo-name">Voctech Library</div><div class="logo-sub">Management System</div></div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-label">Main</div>
-    <a href="/librarian/admin/homepage" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      Dashboard
-    </a>
-    <a href="/book/get-all-books?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-      Books
-    </a>
-    <a href="/user/view-all-users?embed=true" class="nav-link active">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-      Students
-    </a>
-    <a href="/librarian/view-all-librarians?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      Librarians
-    </a>
-    <div class="nav-label">Transactions</div>
-    <a class="nav-link" onclick="toggleTrans(this);return false;">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      Transactions
-      <svg class="nav-chevron" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </a>
-    <div class="nav-submenu" id="transSubmenu">
-      <a href="/transaction/view-all-borrow-records?embed=true" class="nav-link">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        Borrow
-      </a>
-      <a href="/transaction/reservation?embed=true" class="nav-link">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-        Reservations
-      </a>
-    </div>
-  </nav>
-  <div class="sidebar-footer" id="profileWrap">
-    <button class="profile-btn" onclick="toggleProfile()">
-      <div class="avatar">AD</div>
-      <div><div class="profile-name">Administrator</div><div class="profile-role">Admin</div></div>
-      <svg class="profile-chevron" id="profileChevron" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </button>
-    <div class="profile-panel" id="profilePanel">
-      <div class="profile-panel-header"><p>Administrator</p><small>Admin Account</small></div>
-      <a class="panel-item danger" href="/librarian/logout">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        Sign Out
-      </a>
-    </div>
-  </div>
-</aside>
+
 
 <div class="main">
   <div class="topbar">
@@ -85,13 +49,19 @@
      
       <span class="topbar-title">Students</span>
     </div>
-    <button class="topbar-btn" id="openAddModalBtn">
-      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Student
-    </button>
+    
   </div>
 
   <div class="page-body">
+     <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+      <button class="topbar-btn" id="openAddModalBtn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Student
+      </button>
+    </div>
     <div class="table-card">
       <form method="GET" style="display:contents;">
         <div class="filter-bar">
@@ -111,12 +81,12 @@
             <select name="section" class="filter-select" onchange="this.form.submit()">
               <option value="">All Sections</option>
               <% if (filters.grade === "11") { %>
-                <% ["HYDROGEN - ABM","BORON - COMP. PROG.","CARBON - CSS","CARBON - EIM","HYDROGEN - GAS","NEON - HUMMS","CARBON - ILL/ANM","HELIUM - STEM"].forEach(sec => { %>
+                <% ["Jupiter", "Mars", "Venus", "Earth"].forEach(sec => { %>
                   <option value="<%= sec %>" <%= filters.section === sec ? "selected" : "" %>><%= sec %></option>
                 <% }) %>
               <% } %>
               <% if (filters.grade === "12") { %>
-                <% ["PEARL - ABM","AMETHYST - COMP. PROG.","DIAMOND - CSS","DIAMOND - EIM","PEARL - GAS","EMERALD - HUMMS","DIAMOND - ILL/ANM","GOLD - STEM"].forEach(sec => { %>
+                <% ["Pluto", "Saturn", "Neptune", "Mercury"].forEach(sec => { %>
                   <option value="<%= sec %>" <%= filters.section === sec ? "selected" : "" %>><%= sec %></option>
                 <% }) %>
               <% } %>

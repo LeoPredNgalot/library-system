@@ -6,16 +6,32 @@
   <title>Borrow Records — Voctech Library</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/togglebutton/theme.css" />
   <link rel="stylesheet" href="/styles/transactionPagesStyleFolder/viewAllBorrowRecords.css">
-  
-  <!-- Embed mode: hide sidebar when loaded inside iframe -->
+  <script>
+  // Anti-flash on load
+  (function(){
+    if(localStorage.getItem('theme') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  })();
+
+  // Listen for toggle from parent dashboard
+  window.addEventListener('storage', function(e){
+    if(e.key === 'theme'){
+      if(e.newValue === 'dark'){
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  });
+</script>
   <script>
     if (new URLSearchParams(window.location.search).get('embed') === 'true') {
       document.documentElement.classList.add('embedded');
     }
   </script>
-
-  
   <style>
     html.embedded .sidebar { display: none !important; }
     html.embedded .main    { margin-left: 0 !important; }
@@ -23,108 +39,79 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-    </div>
-    <div>
-      <div class="logo-name">Voctech Library</div>
-      <div class="logo-sub">Management System</div>
-    </div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-label">Main</div>
-    <a href="/librarian/admin/homepage" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      Dashboard
-    </a>
-    <a href="/book/get-all-books?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-      Books
-    </a>
-    <a href="/user/view-all-users?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-      Students
-    </a>
-    <a href="/librarian/view-all-librarians?embed=true" class="nav-link">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      Librarians
-    </a>
-    <div class="nav-label">Transactions</div>
-    <a class="nav-link" id="transBtn" onclick="toggleTrans();return false;">
-      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      Transactions
-      <svg class="nav-chevron" id="transChevron" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </a>
-    <div class="nav-submenu open" id="transSubmenu">
-      <a href="/transaction/borrow?embed=true" class="nav-link active">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        Borrow
-      </a>
-      <a href="/transaction/reservation?embed=true" class="nav-link">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-        Reservations
-      </a>
-    </div>
-  </nav>
-  <div class="sidebar-footer" id="profileWrap">
-    <button class="profile-btn" onclick="toggleProfile()">
-      <div class="avatar">AD</div>
-      <div><div class="profile-name">Administrator</div><div class="profile-role">Admin</div></div>
-      <svg class="profile-chevron" id="profileChevron" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-    </button>
-    <div class="profile-panel" id="profilePanel">
-      <div class="profile-panel-header"><p>Administrator</p><small>Admin Account</small></div>
-      <a class="panel-item danger" href="/librarian/logout">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        Sign Out
-      </a>
-    </div>
-  </div>
-</aside>
+
 
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-left">
-     
       <span class="topbar-title">Borrow Records</span>
     </div>
-    <button type="button" class="topbar-btn" id="openBorrowFormBtn">
-      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Add Borrow
-    </button>
   </div>
 
   <div class="page-body">
+     <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+      <button type="button" class="topbar-btn" id="openBorrowFormBtn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Borrow
+      </button>
+    </div>
     <div class="table-card">
       <div class="filter-bar">
+
+        <!-- Search input — stretches to fill space -->
         <div class="filter-search">
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" id="searchInput" class="filter-input" placeholder="Search student / copy ID / title…" value="<%= filters?.q || '' %>" />
+          <input type="text" id="searchInput" class="filter-input" placeholder="Search title / copy ID / student name…" value="<%= filters?.q || '' %>" />
         </div>
+
+        <!-- View Filter -->
         <div class="select-wrap">
           <select id="viewFilter" class="filter-select">
-            <option value="actionable" <%= (filters?.view==='actionable')?'selected':'' %>>View: Actionable</option>
-            <option value="history"    <%= (filters?.view==='history')?'selected':'' %>>View: History</option>
-            <option value="all"        <%= (filters?.view==='all')?'selected':'' %>>View: All</option>
+            <option value=""         <%= (!filters?.view)                  ? 'selected' : '' %>>Status: All</option>
+            <option value="borrowed" <%= (filters?.view === 'borrowed')    ? 'selected' : '' %>>Borrowed</option>
+            <option value="returned" <%= (filters?.view === 'returned')    ? 'selected' : '' %>>Returned</option>
+            <option value="lost"     <%= (filters?.view === 'lost')        ? 'selected' : '' %>>Lost</option>
+            <option value="damaged"  <%= (filters?.view === 'damaged')     ? 'selected' : '' %>>Damaged</option>
+            <option value="overdue"  <%= (filters?.view === 'overdue')     ? 'selected' : '' %>>Overdue</option>
           </select>
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
+
+        <!-- Payment Filter -->
         <div class="select-wrap">
           <select id="paymentFilter" class="filter-select">
-            <option value="all"       <%= (filters?.payment==='all')?'selected':'' %>>Payment: All</option>
-            <option value="UNSETTLED" <%= (filters?.payment==='UNSETTLED')?'selected':'' %>>Unsettled</option>
-            <option value="SETTLED"   <%= (filters?.payment==='SETTLED')?'selected':'' %>>Settled</option>
+            <option value=""          <%= (!filters?.payment)                 ? 'selected' : '' %>>Payment: All</option>
+            <option value="UNSETTLED" <%= (filters?.payment === 'UNSETTLED')  ? 'selected' : '' %>>Unsettled</option>
+            <option value="SETTLED"   <%= (filters?.payment === 'SETTLED')    ? 'selected' : '' %>>Settled</option>
           </select>
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <button id="overdueBtn" class="btn-overdue <%= (filters?.overdue==='1')?'active':'' %>" data-overdue="<%= (filters?.overdue||'0') %>">
-          <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <%= (filters?.overdue==='1')?'Overdue: ON':'Overdue' %>
-        </button>
+
+        <!-- Grade Filter -->
+        <div class="select-wrap">
+          <select id="gradeFilter" class="filter-select">
+            <option value=""   <%= (!filters?.grade)           ? 'selected' : '' %>>Grade: All</option>
+            <option value="11" <%= (filters?.grade === '11')   ? 'selected' : '' %>>Grade 11</option>
+            <option value="12" <%= (filters?.grade === '12')   ? 'selected' : '' %>>Grade 12</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Section Filter -->
+        <div class="select-wrap">
+          <select id="sectionFilter" class="filter-select" data-selected="<%= filters?.section || '' %>">
+            <option value="">Section: All</option>
+          </select>
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+
+        <!-- Search button — far right, books page style -->
+        <button type="button" id="searchBtn" class="btn-search">Apply</button>
+
       </div>
 
       <div style="overflow-x:auto;">
@@ -148,14 +135,15 @@
               <td><%= r.lName %></td>
               <td><%= r.grade %></td>
               <td><%= r.section %></td>
-              <td><%= r.borrowDate %></td>
-              <td><%= r.dueDate %></td>
-              <td><%= r.returnDate ?? '—' %></td>
+              <td><%= r.borrowDate ? new Date(r.borrowDate).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—' %></td>
+              <td><%= r.dueDate ? new Date(r.dueDate).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—' %></td>
+              <td><%= r.returnDate ? new Date(r.returnDate).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '—' %></td>
               <td>
-                <% const statusClass = {'BORROWED':'badge-borrowed','RETURNED':'badge-returned','LOST':'badge-lost','DAMAGED':'badge-damaged'}[r.borrowStatus]||''; %>
-                <span class="badge <%= statusClass %>"><%= r.borrowStatus %></span>
+                <% const statusClass = {'BORROWED':'badge-borrowed','RETURNED':'badge-returned','LOST':'badge-lost','DAMAGED':'badge-damaged','OVERDUE':'badge-overdue'}[r.displayStatus]||''; %>
+                <!-- <td><%= r.borrowStatus %></td> -->
+                <span class="badge <%= statusClass %>"><%= r.displayStatus %></span>
               </td>
-              <td><span class="<%= (r.fineAmount>0)?'cell-fine-pos':'cell-fine-zero' %>">₱<%= r.fineAmount??0 %></span></td>
+              <td><span class="<%= (r.fineAmount>0)?'cell-fine-pos':'cell-fine-zero' %>"><%=  '₱' + (r.fineAmount??0) %></span></td>
               <td><span class="badge <%= r.paymentStatus==='SETTLED'?'badge-settled':'badge-unsettled' %>"><%= r.paymentStatus %></span></td>
               <td>
                 <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
@@ -183,8 +171,6 @@
           </tbody>
         </table>
       </div>
-      
-  
 
       <% const p = pagination || { page:1, totalPages:1 }; %>
       <div class="pagination">
@@ -219,8 +205,6 @@
     </div>
     <form id="borrowForm">
       <div class="modal-body">
-
-        <!-- STEP 1: STUDENT -->
         <div>
           <label class="field-label">Student <span>*</span></label>
           <div class="ac-wrap">
@@ -236,8 +220,6 @@
             <input type="hidden" id="selectedStudentId" name="studentId" />
           </div>
         </div>
-
-        <!-- STEP 2: BOOK -->
         <div id="bookFieldWrap">
           <label class="field-label">Book Title <span>*</span></label>
           <div class="ac-wrap">
@@ -253,8 +235,6 @@
             <input type="hidden" id="selectedBookId" />
           </div>
         </div>
-
-        <!-- STEP 3: COPY -->
         <div id="copyFieldWrap">
           <label class="field-label">Book Copy <span>*</span></label>
           <div class="select-wrap">
@@ -265,8 +245,6 @@
           </div>
           <input type="hidden" id="selectedCopyId" name="bookCopyId" />
         </div>
-
-        <!-- STEP 4: DUE DATE -->
         <div id="dueDateWrap">
           <label class="field-label">Due Date <span>*</span></label>
           <div class="field-wrap">
@@ -274,7 +252,6 @@
             <input type="date" id="borrowDueDate" name="dueDate" min="<%= new Date().toISOString().split('T')[0] %>" class="modal-input" />
           </div>
         </div>
-
       </div>
       <div class="modal-divider"></div>
       <div class="modal-footer">

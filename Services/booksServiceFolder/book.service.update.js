@@ -147,14 +147,43 @@ async function checkAndUpdateFormInformation(payload) {
 async function markABookCopyAsLost(copyId) {
   await pool.query(`UPDATE book_copies SET lost = TRUE, available = FALSE WHERE copy_id = ?`, [copyId]);
 }
+
 async function markABookCopyAsDamaged(copyId) {
   await pool.query(`UPDATE book_copies SET damaged = TRUE, available = FALSE WHERE copy_id = ?`, [copyId]);
 }
+
+// ✅ FIXED — also updates borrow_records so the record shows RETURNED + SETTLED
 async function markABookCopyAsFound(copyId) {
-  await pool.query(`UPDATE book_copies SET lost = FALSE, available = TRUE WHERE copy_id = ?`, [copyId]);
+  // 1. Update the book copy — mark as no longer lost and available again
+  await pool.query(
+    `UPDATE book_copies SET lost = FALSE, available = TRUE WHERE copy_id = ?`,
+    [copyId]
+  );
+
+  // 2. Update the matching borrow record — mark as RETURNED and SETTLED
+  await pool.query(
+    `UPDATE borrow_records
+     SET status = 'RETURNED', payment_status = 'SETTLED', return_date = NOW()
+     WHERE copy_id = ? AND status = 'LOST'`,
+    [copyId]
+  );
 }
+
+// ✅ FIXED — also updates borrow_records so the record shows RETURNED + SETTLED
 async function markABookCopyAsRepaired(copyId) {
-  await pool.query(`UPDATE book_copies SET damaged = FALSE, available = TRUE WHERE copy_id = ?`, [copyId]);
+  // 1. Update the book copy — mark as no longer damaged and available again
+  await pool.query(
+    `UPDATE book_copies SET damaged = FALSE, available = TRUE WHERE copy_id = ?`,
+    [copyId]
+  );
+
+  // 2. Update the matching borrow record — mark as RETURNED and SETTLED
+  await pool.query(
+    `UPDATE borrow_records
+     SET status = 'RETURNED', payment_status = 'SETTLED', return_date = NOW()
+     WHERE copy_id = ? AND status = 'DAMAGED'`,
+    [copyId]
+  );
 }
 
 //------------------------------------

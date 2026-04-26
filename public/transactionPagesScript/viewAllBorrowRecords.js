@@ -154,7 +154,6 @@ bookDropdown?.addEventListener('click', async (e) => {
   hideDropdown(bookDropdown);
   validateForm();
 
-  // Load available copies for this book via the JSON API endpoint
   copySelect.innerHTML = '<option value="">Loading copies…</option>';
   selectedCopyId.value = '';
   try {
@@ -275,22 +274,76 @@ function updateQuery(params) {
     if (val === null || val === undefined || val === '') url.searchParams.delete(key);
     else url.searchParams.set(key, String(val));
   });
-  if ('payment' in params || 'overdue' in params || 'q' in params || 'view' in params) url.searchParams.set('page', '1');
+  // Reset to page 1 whenever a filter changes
+  if (['payment', 'view', 'q', 'grade', 'section'].some(k => k in params)) {
+    url.searchParams.set('page', '1');
+  }
   window.location.href = url.toString();
 }
-document.getElementById('searchInput')?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { const q = e.target.value.trim(); if (q) updateQuery({ q }); }
-});
+
+// Search input — Enter key or Search button
+const searchInput = document.getElementById('searchInput');
+const searchBtn   = document.getElementById('searchBtn');
+
+function doSearch() {
+  const q = searchInput?.value.trim() ?? '';
+  updateQuery({ q });
+}
+searchInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+searchBtn?.addEventListener('click', doSearch);
+
+// View filter
+document.getElementById('viewFilter')?.addEventListener('change', (e) => updateQuery({ view: e.target.value }));
+
+// Payment filter
 document.getElementById('paymentFilter')?.addEventListener('change', (e) => updateQuery({ payment: e.target.value }));
-document.getElementById('viewFilter')?.addEventListener('change',    (e) => updateQuery({ view: e.target.value }));
-document.getElementById('overdueBtn')?.addEventListener('click', () => {
-  const el = document.getElementById('overdueBtn');
-  updateQuery({ overdue: el.dataset.overdue === '1' ? '0' : '1' });
+
+// Grade filter — also clear section when grade changes
+document.getElementById('gradeFilter')?.addEventListener('change', (e) => {
+  updateQuery({ grade: e.target.value, section: '' });
 });
+
+// Section filter
+document.getElementById('sectionFilter')?.addEventListener('change', (e) => updateQuery({ section: e.target.value }));
+
+// Pagination
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.page-btn');
   if (btn) updateQuery({ page: btn.dataset.page });
 });
+
+// ── Section filter: populate dynamically based on selected grade ──
+(function initSectionFilter() {
+  const gradeEl   = document.getElementById('gradeFilter');
+  const sectionEl = document.getElementById('sectionFilter');
+  if (!gradeEl || !sectionEl) return;
+
+  // Sections per grade — adjust to match your school's actual sections
+  const sectionsByGrade = {
+    '11': ['Narra', 'Molave', 'Acacia', 'Tindalo', 'Yakal'],
+    '12': ['Narra', 'Molave', 'Acacia', 'Tindalo', 'Yakal'],
+  };
+
+  const savedSection = sectionEl.dataset.selected || '';
+
+  function populateSections(grade) {
+    sectionEl.innerHTML = '<option value="">Section: All</option>';
+    const sections = sectionsByGrade[grade] || [];
+    sections.forEach(sec => {
+      const opt = document.createElement('option');
+      opt.value = sec;
+      opt.textContent = sec;
+      if (sec === savedSection) opt.selected = true;
+      sectionEl.appendChild(opt);
+    });
+  }
+
+  // Populate on load based on current grade value
+  populateSections(gradeEl.value);
+
+  // Re-populate when grade changes (before navigation)
+  gradeEl.addEventListener('change', () => populateSections(gradeEl.value));
+})();
 
 // Close dropdowns on outside click
 document.addEventListener('click', (e) => {

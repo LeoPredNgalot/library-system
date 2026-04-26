@@ -3,28 +3,26 @@
 //
 
 const { getInventoryReportData, getDashboardData } = require(
-  `../Services/reportServiceFolder/reportService`,
+  `../Services/ReportServiceFolder/reportService`,
 );
 
 async function sendInventoryReportPage(req, res) {
   try {
-    const page = Number(req.query.page) || 1;
-    const limit = 10;
-    const search = (req.query.search || "").trim();
-    const genre = (req.query.genre || "").trim();
-
     const result = await getInventoryReportData({
-      page,
-      limit,
-      search,
-      genre,
+      page:      Number(req.query.page) || 1,
+      limit:     10,
+      search:    (req.query.search    || '').trim(),
+      genre:     (req.query.genre     || '').trim(),
+      dateRange: (req.query.dateRange || '').trim(), // ← new
+      dateFrom:  (req.query.dateFrom  || '').trim(), // ← new
+      dateTo:    (req.query.dateTo    || '').trim(),  // ← new
     });
 
     res.render(`reportViews/inventoryReport`, {
-      summary: result.summary,
-      books: result.books,
-      genres: result.genres,
-      filters: result.filters,
+      summary:    result.summary,
+      books:      result.books,
+      genres:     result.genres,
+      filters:    result.filters,
       pagination: result.pagination,
     });
   } catch (error) {
@@ -37,29 +35,10 @@ async function sendInventoryReportPage(req, res) {
 async function sendDashboardPage(req, res) {
   try {
     const result = await getDashboardData();
-
     res.render(`reportViews/dashboard`, {
-      inventory: result.inventory,
-      activity: result.activity,
-      recentActivity: result.recentActivity,
-    });
-  } catch (error) {
-    console.log(`REPORT CONTROLLER: sendDashboardPage ERROR`);
-    console.log(error.message);
-    return res.status(500).send(`Server error loading dashboard page.`);
-  }
-}
-
-//---------//
-
-async function sendDashboardPage(req, res) {
-  try {
-    const result = await getDashboardData();
-
-    res.render(`reportViews/dashboard`, {
-      inventory: result.inventory,
+      inventory:      result.inventory,
       borrowActivity: result.borrowActivity,
-      reservations: result.reservations,
+      reservations:   result.reservations,
     });
   } catch (error) {
     console.log(`REPORT CONTROLLER: sendDashboardPage ERROR`);
